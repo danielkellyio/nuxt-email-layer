@@ -9,7 +9,7 @@
     "build": "nuxt build",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "type-check": "vue-tsc --noEmit"
+    "typecheck": "npx nuxi typecheck"
   },
   "dependencies": {
     "@my-org/nuxt-layer-hello-world": "workspace:*"

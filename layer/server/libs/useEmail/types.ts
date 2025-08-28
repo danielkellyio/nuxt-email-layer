@@ -1,9 +1,17 @@
+import type { Component } from "vue";
+
 export type EmailProviders = "mailgun" | "mailcatcher";
 
 export type EmailParams = {
   from?: string;
   to: string;
   subject: string;
+} & (
+  | { body: string }
+  | { template: Component; data?: Record<string, unknown> }
+);
+
+export type SentEmailData = EmailParams & {
   body: string;
 };
 
@@ -12,7 +20,7 @@ export type EmailRepsonse = {
   message: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata: Record<string, any>;
-  sentData: EmailParams;
+  sentData: SentEmailData;
 };
 
 export type EmailProvider = {

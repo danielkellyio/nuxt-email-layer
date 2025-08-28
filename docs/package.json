@@ -5,9 +5,11 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "prepare": "nuxt prepare",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "typecheck": "nuxt typecheck"
   },
   "dependencies": {
     "nuxt": "^3.17.6",

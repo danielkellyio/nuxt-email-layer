@@ -1,6 +1,6 @@
 import { test, expect, describe } from "vitest";
 import { useMailGun, useMailCatcher } from "../layer/server/libs/useEmail";
-import type { EmailParams } from "../layer/server/libs/useEmail";
+import type { EmailParams, SentEmailData } from "../layer/server/libs/useEmail";
 
 describe("mailgun provider", () => {
   test("mailgun requires NUXT_EMAIL_MAILGUN_API_KEY and NUXT_EMAIL_MAILGUN_DOMAIN to be set", () => {
@@ -25,7 +25,7 @@ describe("mailcatcher provider", () => {
     });
 
     const storage = useStorage("mailcatcher");
-    const storedEmail = await storage.getItem<EmailParams>(res.id);
+    const storedEmail = await storage.getItem<SentEmailData>(res.id);
 
     expect(storedEmail).toBeDefined();
     expect(storedEmail?.from).toBe("test@test.com");

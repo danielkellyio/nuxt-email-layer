@@ -4,7 +4,7 @@ import type {
   EmailProvider,
   EmailProviders,
 } from "../types";
-import { emailLayerHooks } from "../../../utils/email";
+import { emailLayerHooks, renderTemplate } from "../../../utils/email";
 
 export abstract class BaseProvider implements EmailProvider {
   constructor() {
@@ -14,10 +14,31 @@ export abstract class BaseProvider implements EmailProvider {
   defaultFrom?: string;
   abstract name: EmailProviders;
   async send(email: EmailParams): Promise<EmailRepsonse> {
+    // Render template if provided
+    let processedEmail: EmailParams;
+
+    if ("template" in email) {
+      // Render the template with data
+      const renderedBody = await renderTemplate(
+        email.template,
+        email.data || {}
+      );
+      processedEmail = {
+        from: email.from,
+        to: email.to,
+        subject: email.subject,
+        body: renderedBody,
+      };
+    } else {
+      processedEmail = email;
+    }
+
     const emailAfterHook: EmailParams = await emailLayerHooks.callHook(
       "send:before",
-      email,
-      { provider: this.name },
+      processedEmail,
+      {
+        provider: this.name,
+      }
     );
 
     const response = await this.commitSend(emailAfterHook);
@@ -25,7 +46,7 @@ export abstract class BaseProvider implements EmailProvider {
     const responseAfterHook = await emailLayerHooks.callHook(
       "send:after",
       response,
-      { provider: this.name, email: emailAfterHook },
+      { provider: this.name, email: emailAfterHook }
     );
 
     return responseAfterHook;

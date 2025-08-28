@@ -15,14 +15,16 @@
     "docs:build": "pnpm --filter docs run build",
     "docs:generate": "pnpm --filter docs run generate",
     "docs:preview": "pnpm --filter docs run preview",
-    "layer:build": "pnpm --filter layer run build",
-    "layer:generate": "pnpm --filter layer run generate",
-    "layer:preview": "pnpm --filter layer run preview",
-    "layer:publish": "pnpm --filter layer run publish",
+    "docs:prepare": "pnpm --filter docs run prepare",
+    "layer:build": "pnpm --filter ./layer run build",
+    "layer:generate": "pnpm --filter ./layer run generate",
+    "layer:preview": "pnpm --filter ./layer run preview",
+    "layer:publish": "pnpm --filter ./layer run publish",
+    "layer:typecheck": "pnpm --filter ./layer run typecheck",
     "test": "pnpm play:prepare && vitest run",
     "test:watch": "pnpm play:prepare && vitest",
     "lint": "pnpm -r lint",
-    "type-check": "pnpm -r type-check"
+    "typecheck": "pnpm -r typecheck"
   },
   "devDependencies": {
     "@nuxt/eslint": "latest",

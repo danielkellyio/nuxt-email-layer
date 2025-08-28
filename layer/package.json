@@ -5,7 +5,8 @@
   "main": "./nuxt.config.ts",
   "scripts": {
     "prepare": "nuxt prepare",
-    "build": "nuxi build"
+    "build": "nuxi build",
+    "typecheck": "npx nuxi typecheck"
   },
   "devDependencies": {
     "@nuxt/eslint": "latest",

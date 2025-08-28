@@ -1,5 +1,6 @@
 import { test, expect, describe } from "vitest";
 import { useEmail } from "../layer/server/libs/useEmail";
+import HelloWorld from "../layer/server/emails/hello-world.vue";
 
 describe("useEmail", () => {
   test("default from is used if no from is provided", async () => {
@@ -38,7 +39,7 @@ describe("useEmail", () => {
     const res = await provider.send({
       to: "test@test.com",
       subject: "test",
-      template: "hello-world",
+      template: HelloWorld,
       data: {
         title: "some title",
       },

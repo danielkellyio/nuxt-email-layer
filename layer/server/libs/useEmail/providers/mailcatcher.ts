@@ -9,6 +9,12 @@ import { BaseProvider } from "./base";
 class MailCatcherProvider extends BaseProvider {
   name = "mailcatcher" as const;
   async commitSend(email: EmailParams): Promise<EmailRepsonse> {
+    if (!("body" in email)) {
+      throw new Error(
+        "Email body isn't set. Either provide one directly or use a template"
+      );
+    }
+
     try {
       const storage = this.useStorage();
       const id = nanoid(24);
@@ -18,7 +24,10 @@ class MailCatcherProvider extends BaseProvider {
         message:
           "Email saved to mailcatcher storage for review in the devtools",
         metadata: {},
-        sentData: { ...email, from: this.defaultFrom || email.from },
+        sentData: {
+          ...email,
+          from: this.defaultFrom || email.from || "",
+        },
       };
     } catch (error) {
       console.error("Mailcatcher send error:", error);
