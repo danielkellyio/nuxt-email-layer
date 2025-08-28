@@ -5,6 +5,7 @@
   "private": true,
   "packageManager": "pnpm@9.0.0",
   "scripts": {
+    "dev": "pnpm play:dev",
     "play:dev": "pnpm --filter playground run dev",
     "play:prepare": "pnpm --filter playground run dev:prepare",
     "play:build": "pnpm --filter playground run build",
