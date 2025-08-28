@@ -1,0 +1,140 @@
+# Nuxt Layer Development Monorepo
+
+A pnpm monorepo for developing a single reusable Nuxt layer with documentation and playground.
+
+## Structure
+
+```
+├── layer/              # The Nuxt layer package
+├── playground/         # Development playground for testing the layer
+├── docs/              # Documentation site (Nuxt Content)
+├── pnpm-workspace.yaml # Workspace configuration
+└── package.json       # Root workspace config
+```
+
+## Quick Start
+
+1. **Install dependencies**
+
+   ```bash
+   pnpm install
+   ```
+
+2. **Start development playground**
+
+   ```bash
+   pnpm play:dev
+   ```
+
+3. **View documentation**
+
+   ```bash
+   pnpm docs:dev
+   ```
+
+## Available Scripts
+
+### Playground Scripts
+
+- `pnpm play:dev` - Start the playground for layer development
+- `pnpm play:prepare` - Prepare the playground (useful after layer changes)
+- `pnpm play:build` - Build the playground
+- `pnpm play:generate` - Generate static playground
+- `pnpm play:preview` - Preview the built playground
+
+### Documentation Scripts
+
+- `pnpm docs:dev` - Start the documentation site
+- `pnpm docs:build` - Build the documentation
+- `pnpm docs:generate` - Generate static documentation
+- `pnpm docs:preview` - Preview the built documentation
+
+### Layer Scripts
+
+- `pnpm layer:build` - Build the layer
+- `pnpm layer:generate` - Generate static layer
+- `pnpm layer:preview` - Preview the built layer
+- `pnpm layer:publish` - Publish the layer to npm
+
+### Other Scripts
+
+- `pnpm test` - Run tests (layer package)
+- `pnpm lint` - Lint all packages
+- `pnpm type-check` - Type check all packages
+
+## The Layer
+
+### @my-org/nuxt-layer-hello-world
+
+Located in `layer/`, this is your main Nuxt layer package.
+
+**Usage:**
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  extends: "@my-org/nuxt-layer-hello-world",
+});
+```
+
+## Development Workflow
+
+### Working on the Layer
+
+1. Make changes to files in `layer/`
+2. Test in the playground with `pnpm play:dev`
+3. Document changes in `docs/content/`
+
+### Testing the Layer
+
+The `playground/` directory contains a Nuxt app that extends your layer:
+
+```bash
+# Start the playground
+pnpm play:dev
+
+# Build the playground
+pnpm play:build
+```
+
+### Publishing the Layer
+
+When ready to publish:
+
+```bash
+# Build and publish the layer
+pnpm layer:publish
+```
+
+## Documentation
+
+The documentation site is built with Nuxt Content and includes:
+
+- Layer documentation and examples
+- API references
+- Usage guides
+
+Visit the docs at http://localhost:3000 when running `pnpm docs:dev`.
+
+## Requirements
+
+- Node.js 18+
+- pnpm 8+
+- Nuxt 4+
+
+## Layer Development Tips
+
+1. **Components**: Add reusable components in `layer/components/`
+2. **Configuration**: Define layer config in `layer/app.config.ts`
+3. **Composables**: Add composables in `layer/composables/`
+4. **Plugins**: Add plugins in `layer/plugins/`
+5. **Testing**: Use the playground to test all functionality
+
+## Publishing
+
+The layer can be published to npm independently. Make sure to:
+
+1. Update the version in `layer/package.json`
+2. Test thoroughly in the playground
+3. Document changes in the docs
+4. Run `pnpm layer:publish`

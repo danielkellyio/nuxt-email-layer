@@ -1,0 +1,23 @@
+{
+  "name": "playground",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt dev",
+    "dev:prepare": "nuxt prepare",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "type-check": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@my-org/nuxt-layer-hello-world": "workspace:*"
+  },
+  "devDependencies": {
+    "nuxt": "^4.0.3",
+    "typescript": "^5.9.2",
+    "vue": "latest",
+    "vue-tsc": "^2.0.0"
+  }
+}

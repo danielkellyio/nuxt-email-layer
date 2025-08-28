@@ -1,0 +1,35 @@
+{
+  "name": "@my-org/nuxt-layer-hello-world",
+  "type": "module",
+  "version": "0.0.1",
+  "main": "./nuxt.config.ts",
+  "files": [
+    "components",
+    "composables",
+    "layouts",
+    "pages",
+    "plugins",
+    "server",
+    "utils",
+    "app.config.ts",
+    "app.vue",
+    "nuxt.config.ts"
+  ],
+  "scripts": {
+    "build": "nuxt build",
+    "lint": "eslint .",
+    "type-check": "vue-tsc --noEmit",
+    "publish": "npm publish --access public"
+  },
+  "peerDependencies": {
+    "nuxt": "^4.0.0"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "latest",
+    "eslint": "^9.34.0",
+    "nuxt": "^4.0.3",
+    "typescript": "^5.9.2",
+    "vue": "latest",
+    "vue-tsc": "^2.0.0"
+  }
+}

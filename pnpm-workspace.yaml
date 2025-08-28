@@ -1,0 +1,4 @@
+packages:
+  - "layer"
+  - "docs"
+  - "playground"

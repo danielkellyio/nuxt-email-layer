@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@my-org/nuxt-layer-hello-world": ["./layer"],
+      "@my-org/nuxt-layer-hello-world/*": ["./layer/*"]
+    }
+  }
+}

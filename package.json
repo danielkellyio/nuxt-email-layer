@@ -1,0 +1,30 @@
+{
+  "name": "nuxt-layer-monorepo",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "play:dev": "pnpm --filter playground run dev",
+    "play:prepare": "pnpm --filter playground run dev:prepare",
+    "play:build": "pnpm --filter playground run build",
+    "play:generate": "pnpm --filter playground run generate",
+    "play:preview": "pnpm --filter playground run preview",
+    "docs:dev": "pnpm --filter docs run dev",
+    "docs:build": "pnpm --filter docs run build",
+    "docs:generate": "pnpm --filter docs run generate",
+    "docs:preview": "pnpm --filter docs run preview",
+    "layer:build": "pnpm --filter layer run build",
+    "layer:generate": "pnpm --filter layer run generate",
+    "layer:preview": "pnpm --filter layer run preview",
+    "layer:publish": "pnpm --filter layer run publish",
+    "test": "pnpm --filter layer run test",
+    "lint": "pnpm -r lint",
+    "type-check": "pnpm -r type-check"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "latest",
+    "eslint": "^9.34.0",
+    "typescript": "^5.9.2"
+  }
+}
