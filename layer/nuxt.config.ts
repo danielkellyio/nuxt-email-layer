@@ -1,4 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+// import vue from "@vitejs/plugin-vue";
 
 export default defineNuxtConfig({
   $meta: {
@@ -20,6 +21,9 @@ export default defineNuxtConfig({
   },
 
   nitro: {
+    rollupConfig: {
+      // plugins: [vue()],
+    },
     storage: {
       mailcatcher: {
         driver: "fs",

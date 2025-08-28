@@ -1,0 +1,98 @@
+# Vue Email Components - Quick Reference
+
+## Core Components
+
+### Structure
+- **Html** - Root wrapper with `lang` and `dir` props
+- **Head** - Contains document metadata, styles, and title
+- **Style** - Inline CSS styles within Head component
+- **Container** - Centers email content horizontally
+
+### Layout
+- **Section** - Wrapper for content areas, works with rows/columns
+- **Row** - Horizontal layout container
+- **Column** - Vertical layout container for use within rows
+
+### Content
+- **Text** - Block text content
+- **Heading** - Semantic headings (h1-h6) with margin shortcuts (m, mx, my, mt, mr, mb, ml)
+- **Button** - Styled link (uses `<a>` tag) with `href` and `target` props
+- **Link** - Standard hyperlink with `href` and `target` props
+- **Preview** - Email preview text (keep under 90 characters)
+- **Hr** - Horizontal divider line
+
+### Media
+- **Img** - Images with `src`, `alt`, `width`, `height` props
+  - Use .png, .gif, .jpg only (avoid .svg)
+- **Font** - Custom web fonts with fallbacks
+
+### Code
+- **CodeBlock** - Syntax highlighted code blocks using Shiki
+  - Props: `code`, `lang`, `theme`, `show-line-numbers`, `highlighted-lines`
+- **CodeInline** - Inline code snippets
+
+### Advanced
+- **Markdown** - Converts markdown to email-compatible HTML
+  - Props: `source`, `markdown-custom-styles`, `markdown-container-styles`
+
+## Import Pattern
+```vue
+<script setup lang="ts">
+import { Html, Head, Container, Section, Button, Text } from '@vue-email/components'
+</script>
+```
+
+## Usage & Rendering
+
+### Basic Template Structure
+```vue
+<script setup lang="ts">
+import { Button, Hr, Html, Text } from '@vue-email/components'
+
+defineProps({
+  title: String,
+})
+</script>
+
+<template>
+  <Html lang="en">
+    <Text>{{ title }}</Text>
+    <Hr />
+    <Button href="https://example.com">Click me</Button>
+  </Html>
+</template>
+```
+
+### Convert to HTML
+```ts
+import { MyTemplate } from './email';
+import { render } from '@vue-email/render';
+
+const html = await render(MyTemplate, {
+  title: 'some title',
+}, {
+  pretty: true, // Beautify output
+});
+```
+
+### Convert to Plain Text
+```ts
+const text = await render(MyTemplate, {
+  title: 'some title',
+}, {
+  plainText: true, // Generate text version
+});
+```
+
+### Render Options
+- `pretty: boolean` - Beautify HTML output
+- `plainText: boolean` - Generate plain text version
+- `htmlToTextOptions` - Additional html-to-text conversion options
+
+## Email-Safe Notes
+- Button component renders as `<a>` tag styled like button
+- Preview text should be under 90 characters
+- Images: use .png/.gif/.jpg, avoid .svg
+- Font component includes fallback support for non-web-font clients
+- All components support standard CSS styling via style attribute
+- Always provide plain text versions for accessibility

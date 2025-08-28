@@ -32,4 +32,19 @@ describe("useEmail", () => {
     const provider = useEmail();
     expect(provider.name).toBe("mailcatcher");
   });
+
+  test("useEmail().send() takes a template and data", async () => {
+    const provider = useEmail();
+    const res = await provider.send({
+      to: "test@test.com",
+      subject: "test",
+      template: "hello-world",
+      data: {
+        title: "some title",
+      },
+    });
+
+    expect(res.sentData.body).toContain("some title");
+    expect(res.sentData.body).toContain(`<html lang="en"`);
+  });
 });

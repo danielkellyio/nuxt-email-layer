@@ -4,6 +4,7 @@
       <h1 class="mb-4 text-2xl font-bold">Email Layer Playground</h1>
       <p class="text-gray-600">
         This playground demonstrates the Email Layer functionality.
+        <EmailsHelloWorld />
       </p>
     </div>
   </div>
