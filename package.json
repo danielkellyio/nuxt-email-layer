@@ -18,13 +18,19 @@
     "layer:generate": "pnpm --filter layer run generate",
     "layer:preview": "pnpm --filter layer run preview",
     "layer:publish": "pnpm --filter layer run publish",
-    "test": "pnpm --filter layer run test",
+    "test": "pnpm play:prepare && vitest run",
+    "test:watch": "pnpm play:prepare && vitest",
     "lint": "pnpm -r lint",
     "type-check": "pnpm -r type-check"
   },
   "devDependencies": {
     "@nuxt/eslint": "latest",
+    "@nuxt/test-utils": "^3.19.2",
+    "@vue/test-utils": "^2.4.6",
     "eslint": "^9.34.0",
-    "typescript": "^5.9.2"
+    "happy-dom": "^18.0.1",
+    "playwright-core": "^1.55.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
   }
 }

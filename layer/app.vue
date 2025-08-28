@@ -1,1 +1,3 @@
-<template>Email Layer</template>
+<template>
+  <div>Email Layer</div>
+</template>

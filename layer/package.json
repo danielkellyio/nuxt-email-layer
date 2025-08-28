@@ -3,33 +3,21 @@
   "type": "module",
   "version": "0.0.1",
   "main": "./nuxt.config.ts",
-  "files": [
-    "components",
-    "composables",
-    "layouts",
-    "pages",
-    "plugins",
-    "server",
-    "utils",
-    "app.config.ts",
-    "app.vue",
-    "nuxt.config.ts"
-  ],
   "scripts": {
-    "build": "nuxt build",
-    "lint": "eslint .",
-    "type-check": "vue-tsc --noEmit",
-    "publish": "npm publish --access public"
-  },
-  "peerDependencies": {
-    "nuxt": "^4.0.0"
+    "prepare": "nuxt prepare",
+    "build": "nuxi build"
   },
   "devDependencies": {
-    "@nuxt/eslint": "latest",
-    "eslint": "^9.34.0",
     "nuxt": "^4.0.3",
-    "typescript": "^5.9.2",
-    "vue": "latest",
-    "vue-tsc": "^2.0.0"
+    "@nuxt/eslint": "latest",
+    "@nuxt/test-utils": "^3.19.2",
+    "@vue/test-utils": "^2.4.6",
+    "happy-dom": "^18.0.1",
+    "playwright-core": "^1.55.0",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "mailgun.js": "^12.0.3",
+    "nanoid": "^5.1.5"
   }
 }
