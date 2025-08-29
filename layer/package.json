@@ -15,13 +15,24 @@
     "happy-dom": "^18.0.1",
     "nuxt": "^4.0.3",
     "playwright-core": "^1.55.0",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "@iconify-json/carbon": "^1.2.13",
+    "@nuxt/devtools": "^2.6.3",
+    "@nuxt/devtools-ui-kit": "^2.6.3",
+    "@nuxt/eslint-config": "^1.9.0",
+    "@nuxt/module-builder": "^1.0.2",
+    "@nuxt/schema": "^4.0.3",
+    "changelogen": "^0.6.2",
+    "eslint": "^9.34.0"
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue-email/components": "^0.0.21",
     "@vue-email/render": "^0.0.9",
     "mailgun.js": "^12.0.3",
-    "nanoid": "^5.1.5"
+    "nanoid": "^5.1.5",
+    "@nuxt/devtools-kit": "^2.6.3",
+    "@nuxt/kit": "^4.0.3",
+    "sirv": "^3.0.1"
   }
 }
