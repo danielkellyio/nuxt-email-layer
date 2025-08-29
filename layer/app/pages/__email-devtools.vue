@@ -342,11 +342,13 @@ onMounted(() => {
             <div class="flex-1 p-4">
               <div class="mb-3">
                 <div class="">
-                  <div
-                    v-if="selectedEmail.body"
-                    class="p-4 max-w-none prose prose-sm dark:prose-invert"
-                    v-html="selectedEmail.body"
-                  />
+                  <div v-if="selectedEmail.body" class="p-4">
+                    <iframe
+                      :srcdoc="selectedEmail.body"
+                      class="w-full h-96 rounded border"
+                      sandbox="allow-same-origin allow-popups allow-forms allow-scripts"
+                    />
+                  </div>
                   <div
                     v-else
                     class="p-4 italic text-gray-500 dark:text-gray-400"
