@@ -1,9 +1,9 @@
-import HelloWorld from "#layers/email/server/emails/hello-world.vue";
+import Email from "#layers/email/server/emails/two-factor-auth.vue";
 export default defineEventHandler(async (event) => {
   return await useEmail().send({
     to: "me@danielkelly.io",
     subject: "Test",
-    template: HelloWorld,
+    template: Email,
     data: {
       title: "My First Email",
     },

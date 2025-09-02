@@ -2,7 +2,10 @@
 import { Button, Hr, Html, Text } from "@vue-email/components";
 
 defineProps({
-  title: String,
+  title: {
+    type: String,
+    default: "Hello World",
+  },
 });
 </script>
 
