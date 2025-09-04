@@ -1,4 +1,4 @@
-export default defineEventHandler(async () => {
+export default defineNitroPlugin(async () => {
   emailLayerHooks.hook("send:after", (payload, context) => {
     // console.log("after email", payload, context);
     return payload;
