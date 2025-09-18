@@ -1,12 +1,13 @@
 {
   "name": "nuxt-email-layer",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "./nuxt.config.ts",
   "scripts": {
     "prepare": "nuxt prepare",
     "build": "nuxi build",
-    "typecheck": "npx nuxi typecheck"
+    "typecheck": "npx nuxi typecheck",
+    "publish": "npm publish --access public"
   },
   "devDependencies": {
     "@nuxt/eslint": "latest",
