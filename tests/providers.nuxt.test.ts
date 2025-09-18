@@ -1,6 +1,12 @@
 import { test, expect, describe } from "vitest";
-import { useMailGun, useMailCatcher } from "../layer/server/libs/useEmail";
-import type { EmailParams, SentEmailData } from "../layer/server/libs/useEmail";
+import {
+  useMailGun,
+  useMailCatcher,
+} from "nuxt-email-layer/server/libs/useEmail";
+import type {
+  EmailParams,
+  SentEmailData,
+} from "nuxt-email-layer/server/libs/useEmail";
 
 describe("mailgun provider", () => {
   test("mailgun requires NUXT_EMAIL_MAILGUN_API_KEY and NUXT_EMAIL_MAILGUN_DOMAIN to be set", () => {

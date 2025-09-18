@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { createHooks } from "../layer/server/libs/hookLib";
+import { createHooks } from "nuxt-email-layer/server/libs/hookLib";
 
 describe("hookLib", () => {
   describe("createHooks", () => {

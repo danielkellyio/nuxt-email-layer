@@ -1,6 +1,6 @@
 import { test, expect, describe } from "vitest";
-import { useEmail } from "../layer/server/libs/useEmail";
-import HelloWorld from "../layer/server/emails/hello-world.vue";
+import { useEmail } from "nuxt-email-layer/server/libs/useEmail";
+import HelloWorld from "nuxt-email-layer/server/emails/hello-world.vue";
 
 describe("useEmail", () => {
   test("default from is used if no from is provided", async () => {

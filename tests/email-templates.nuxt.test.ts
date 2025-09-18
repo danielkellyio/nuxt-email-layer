@@ -1,5 +1,5 @@
 import { test, expect, describe } from "vitest";
-import MyTemplate from "../layer/server/emails/hello-world.vue";
+import MyTemplate from "nuxt-email-layer/server/emails/hello-world.vue";
 import { render } from "@vue-email/render";
 
 describe("email-templates", () => {
