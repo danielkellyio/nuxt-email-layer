@@ -29,6 +29,7 @@
     "prepare": "pnpm -r prepare"
   },
   "devDependencies": {
+    "@my-org/nuxt-layer-hello-world": "workspace:*",
     "@nuxt/eslint": "latest",
     "@nuxt/test-utils": "^3.19.2",
     "@vue/test-utils": "^2.4.6",
