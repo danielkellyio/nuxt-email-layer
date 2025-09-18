@@ -12,7 +12,7 @@
     "typecheck": "npx nuxi typecheck"
   },
   "dependencies": {
-    "@my-org/nuxt-layer-hello-world": "workspace:*"
+    "nuxt-email-layer": "workspace:*"
   },
   "devDependencies": {
     "nuxt": "^4.0.3",

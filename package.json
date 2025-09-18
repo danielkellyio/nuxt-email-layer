@@ -22,14 +22,14 @@
     "layer:preview": "pnpm --filter ./layer run preview",
     "layer:publish": "pnpm --filter ./layer run publish",
     "layer:typecheck": "pnpm --filter ./layer run typecheck",
-    "test": "pnpm play:prepare && vitest run",
-    "test:watch": "pnpm play:prepare && vitest",
+    "test": "pnpm prepare && vitest run",
+    "test:watch": "pnpm prepare && vitest",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
     "prepare": "pnpm -r prepare"
   },
   "devDependencies": {
-    "@my-org/nuxt-layer-hello-world": "workspace:*",
+    "nuxt-email-layer": "workspace:*",
     "@nuxt/eslint": "latest",
     "@nuxt/test-utils": "^3.19.2",
     "@vue/test-utils": "^2.4.6",

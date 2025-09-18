@@ -64,7 +64,7 @@ A pnpm monorepo for developing a single reusable Nuxt layer with documentation a
 
 ## The Layer
 
-### @my-org/nuxt-layer-hello-world
+### nuxt-email-layer
 
 Located in `layer/`, this is your main Nuxt layer package.
 
@@ -73,7 +73,7 @@ Located in `layer/`, this is your main Nuxt layer package.
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  extends: "@my-org/nuxt-layer-hello-world",
+  extends: "nuxt-email-layer",
 });
 ```
 
