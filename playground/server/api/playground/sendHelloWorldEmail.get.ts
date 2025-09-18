@@ -5,7 +5,10 @@ export default defineEventHandler(async (event) => {
     subject: "Test",
     template: Email,
     data: {
-      title: "My First Email",
+      userName: "Daniel",
+      verificationCode: "736023",
+      expiresIn: "10 minutes",
+      supportUrl: "https://help.example.com",
     },
   });
 });

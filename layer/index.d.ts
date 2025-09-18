@@ -4,8 +4,8 @@ export type EmailProvider = Parameters<typeof useEmail>[0];
 declare module "@nuxt/schema" {
   interface RuntimeConfig {
     email?: {
-      provider: EmailProviders;
-      defaultFrom: string;
+      provider?: EmailProviders;
+      defaultFrom?: string;
       mailcatcher?: {
         storageKey: string;
       };

@@ -9,7 +9,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     email: {
       provider: "mailcatcher",
-      defaultFrom: "yoyoyo@sandbox4ed740f8a04d45f69bb83eac56fe48ca.mailgun.org",
+      defaultFrom: "hello@world.com",
       mailcatcher: {
         storageKey: "mailcatcher",
       },
