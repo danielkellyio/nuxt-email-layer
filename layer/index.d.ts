@@ -3,7 +3,7 @@ import type { EmailProviders } from "./server/libs/useEmail";
 export type EmailProvider = Parameters<typeof useEmail>[0];
 declare module "@nuxt/schema" {
   interface RuntimeConfig {
-    email: {
+    email?: {
       provider: EmailProviders;
       defaultFrom: string;
       mailcatcher?: {
