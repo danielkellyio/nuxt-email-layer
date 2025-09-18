@@ -11,6 +11,7 @@
     "play:build": "pnpm --filter playground run build",
     "play:generate": "pnpm --filter playground run generate",
     "play:preview": "pnpm --filter playground run preview",
+    "docs": "pnpm docs:dev",
     "docs:dev": "pnpm --filter docs run dev",
     "docs:build": "pnpm --filter docs run build",
     "docs:generate": "pnpm --filter docs run generate",
