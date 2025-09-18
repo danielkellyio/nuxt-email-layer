@@ -25,7 +25,6 @@
     "test": "pnpm prepare && vitest run",
     "test:watch": "pnpm prepare && vitest",
     "lint": "pnpm -r lint",
-    "typecheck": "pnpm -r typecheck",
     "prepare": "pnpm -r prepare"
   },
   "devDependencies": {
