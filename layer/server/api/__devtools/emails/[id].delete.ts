@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   try {
     const config = useRuntimeConfig();
     const storage = useStorage(
-      config.email.mailcatcher?.storageKey || "mailcatcher"
+      config?.email?.mailcatcher?.storageKey || "mailcatcher"
     );
 
     // Check if email exists

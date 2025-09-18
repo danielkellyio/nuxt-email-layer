@@ -6,8 +6,8 @@ describe("mailgun provider", () => {
   test("mailgun requires NUXT_EMAIL_MAILGUN_API_KEY and NUXT_EMAIL_MAILGUN_DOMAIN to be set", () => {
     const config = useRuntimeConfig();
 
-    expect(config.email.mailgun?.apiKey).toBe("");
-    expect(config.email.mailgun?.domain).toBe("");
+    expect(config.email?.mailgun?.apiKey).toBe("");
+    expect(config.email?.mailgun?.domain).toBe("");
 
     expect(() => useMailGun()).toThrow(
       "Mailgun API key and domain are required"

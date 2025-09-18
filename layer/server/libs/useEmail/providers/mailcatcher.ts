@@ -38,7 +38,7 @@ class MailCatcherProvider extends BaseProvider {
   }
   useStorage() {
     const config = useRuntimeConfig();
-    return useStorage(config.email.mailcatcher?.storageKey || "mailcatcher");
+    return useStorage(config?.email?.mailcatcher?.storageKey || "mailcatcher");
   }
 }
 

@@ -9,7 +9,7 @@ import { emailLayerHooks, renderTemplate } from "../../../utils/email";
 export abstract class BaseProvider implements EmailProvider {
   constructor() {
     const config = useRuntimeConfig();
-    this.defaultFrom = config.email.defaultFrom || undefined;
+    this.defaultFrom = config?.email?.defaultFrom || undefined;
   }
   defaultFrom?: string;
   abstract name: EmailProviders;

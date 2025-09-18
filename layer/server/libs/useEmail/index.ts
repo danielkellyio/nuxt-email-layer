@@ -4,14 +4,14 @@ import { useMailCatcher } from "./providers/mailcatcher";
 export function useEmail() {
   const config = useRuntimeConfig();
 
-  if (!config.email.provider) {
+  if (!config?.email?.provider) {
     throw new Error("Email provider is not set");
   }
   const map = {
     mailgun: useMailGun,
     mailcatcher: useMailCatcher,
   };
-  const providerFactory = map[config.email.provider] || useMailCatcher;
+  const providerFactory = map[config?.email?.provider] || useMailCatcher;
   return providerFactory();
 }
 

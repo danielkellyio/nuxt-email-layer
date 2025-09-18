@@ -15,11 +15,11 @@ class MailGunProvider extends BaseProvider {
   constructor() {
     super();
     const config = useRuntimeConfig();
-    if (!config.email.mailgun?.apiKey || !config.email.mailgun?.domain) {
+    if (!config?.email?.mailgun?.apiKey || !config?.email?.mailgun?.domain) {
       throw new Error("Mailgun API key and domain are required");
     }
-    this.apiKey = config.email.mailgun.apiKey;
-    this.domain = config.email.mailgun.domain;
+    this.apiKey = config?.email?.mailgun?.apiKey;
+    this.domain = config?.email?.mailgun?.domain;
   }
 
   async commitSend(email: EmailParams): Promise<EmailRepsonse> {

@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "pnpm play:dev",
     "play:dev": "pnpm --filter playground run dev",
-    "play:prepare": "pnpm --filter playground run dev:prepare",
+    "play:prepare": "pnpm --filter playground run prepare",
     "play:build": "pnpm --filter playground run build",
     "play:generate": "pnpm --filter playground run generate",
     "play:preview": "pnpm --filter playground run preview",
@@ -24,7 +24,8 @@
     "test": "pnpm play:prepare && vitest run",
     "test:watch": "pnpm play:prepare && vitest",
     "lint": "pnpm -r lint",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm -r typecheck",
+    "prepare": "pnpm -r prepare"
   },
   "devDependencies": {
     "@nuxt/eslint": "latest",

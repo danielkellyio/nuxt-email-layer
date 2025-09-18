@@ -2,7 +2,7 @@ export default defineEventHandler(async (_event) => {
   try {
     const config = useRuntimeConfig();
     const storage = useStorage(
-      config.email.mailcatcher?.storageKey || "mailcatcher"
+      config?.email?.mailcatcher?.storageKey || "mailcatcher"
     );
 
     // Get all keys from storage

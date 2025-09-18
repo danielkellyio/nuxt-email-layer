@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   try {
     const config = useRuntimeConfig();
     const storage = useStorage(
-      config.email.mailcatcher?.storageKey || "mailcatcher"
+      config?.email?.mailcatcher?.storageKey || "mailcatcher"
     );
 
     const email = await storage.getItem<SentEmailData>(id);

@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "nuxt dev",
-    "dev:prepare": "nuxt prepare",
+    "prepare": "nuxt prepare",
     "build": "nuxt build",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
