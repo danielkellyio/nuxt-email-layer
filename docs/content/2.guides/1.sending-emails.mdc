@@ -1,0 +1,356 @@
+---
+title: Sending Emails
+description: Learn how to send emails using the useEmail composable with different content types and providers.
+icon: lucide:send
+---
+
+# Sending Emails
+
+The `useEmail()` composable is the main interface for sending emails in your Nuxt application. It provides a simple, consistent API regardless of which email provider you're using.
+
+## Basic Usage
+
+Import and use the `useEmail()` composable in your server-side code:
+
+```ts [server/api/send-email.ts]
+export default defineEventHandler(async (event) => {
+  const email = useEmail()
+
+  const result = await email.send({
+    to: 'user@example.com',
+    subject: 'Welcome!',
+    body: 'Welcome to our platform!'
+  })
+
+  return result
+})
+```
+
+## API Reference
+
+### `useEmail()`
+
+Returns an email provider instance with a `send()` method.
+
+```ts
+interface EmailProvider {
+  name: string
+  send: (email: EmailParams) => Promise<EmailResponse>
+}
+```
+
+### `send(email: EmailParams)`
+
+Sends an email using the configured provider.
+
+#### Parameters
+
+```ts
+type EmailParams = {
+  from?: string        // Sender email (optional, uses defaultFrom if not provided)
+  to: string          // Recipient email address
+  subject: string     // Email subject line
+} & (
+  | { body: string }  // Plain text/HTML body
+  | { template: Component; data?: Record<string, unknown> } // Vue template
+)
+```
+
+#### Response
+
+```ts
+interface EmailResponse {
+  id: string                           // Unique email ID
+  message: string                      // Success message
+  metadata: Record<string, any>        // Provider-specific metadata
+  sentData: SentEmailData             // Final email data that was sent
+}
+```
+
+## Sending Text Emails
+
+Send simple text or HTML emails directly:
+
+```ts [server/api/simple-email.ts]
+export default defineEventHandler(async (event) => {
+  const email = useEmail()
+
+  return await email.send({
+    to: 'user@example.com',
+    subject: 'Password Reset',
+    body: 'Click here to reset your password: https://example.com/reset'
+  })
+})
+```
+
+## Sending HTML Emails
+
+You can send rich HTML content:
+
+```ts [server/api/html-email.ts]
+export default defineEventHandler(async (event) => {
+  const email = useEmail()
+
+  const htmlBody = `
+    <h1>Welcome to Our Platform!</h1>
+    <p>Thank you for joining us. Here are your next steps:</p>
+    <ul>
+      <li>Complete your profile</li>
+      <li>Explore our features</li>
+      <li>Join our community</li>
+    </ul>
+    <a href="https://example.com/dashboard" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none;">
+      Get Started
+    </a>
+  `
+
+  return await email.send({
+    to: 'user@example.com',
+    subject: 'Welcome to Our Platform!',
+    body: htmlBody
+  })
+})
+```
+
+## Sending Template-Based Emails
+
+Use Vue components as email templates for more maintainable and reusable emails:
+
+```ts [server/api/template-email.ts]
+import WelcomeEmail from '#layers/email/server/emails/welcome.vue'
+
+export default defineEventHandler(async (event) => {
+  const email = useEmail()
+
+  return await email.send({
+    to: 'user@example.com',
+    subject: 'Welcome to Our Platform!',
+    template: WelcomeEmail,
+    data: {
+      userName: 'John Doe',
+      userEmail: 'user@example.com',
+      dashboardUrl: 'https://app.example.com/dashboard',
+      supportUrl: 'https://help.example.com'
+    }
+  })
+})
+```
+
+## Using Request Data
+
+Extract data from the request to personalize emails:
+
+```ts [server/api/contact-form.post.ts]
+export default defineEventHandler(async (event) => {
+  const body = await readBody(event)
+  const { name, email: userEmail, message } = body
+
+  const emailService = useEmail()
+
+  // Send confirmation to user
+  await emailService.send({
+    to: userEmail,
+    subject: 'We received your message',
+    body: `
+      <h2>Thanks for contacting us, ${name}!</h2>
+      <p>We'll get back to you soon.</p>
+      <hr>
+      <p><strong>Your message:</strong></p>
+      <p>${message}</p>
+    `
+  })
+
+  // Send notification to admin
+  await emailService.send({
+    to: 'admin@example.com',
+    subject: 'New contact form submission',
+    body: `
+      <h3>New message from ${name} (${userEmail})</h3>
+      <p>${message}</p>
+    `
+  })
+
+  return { success: true }
+})
+```
+
+## Error Handling
+
+Always handle potential errors when sending emails:
+
+```ts [server/api/safe-email.ts]
+export default defineEventHandler(async (event) => {
+  try {
+    const email = useEmail()
+
+    const result = await email.send({
+      to: 'user@example.com',
+      subject: 'Test Email',
+      body: 'This is a test email.'
+    })
+
+    return {
+      success: true,
+      emailId: result.id,
+      message: 'Email sent successfully'
+    }
+
+  } catch (error) {
+    console.error('Email sending failed:', error)
+
+    return {
+      success: false,
+      error: error.message || 'Failed to send email'
+    }
+  }
+})
+```
+
+## Advanced Usage
+
+### Custom Sender Address
+
+Override the default sender for specific emails:
+
+```ts
+await email.send({
+  from: 'support@example.com',
+  to: 'user@example.com',
+  subject: 'Support Response',
+  body: 'Your support ticket has been updated.'
+})
+```
+
+### Batch Email Sending
+
+Send multiple emails efficiently:
+
+```ts [server/api/batch-email.ts]
+export default defineEventHandler(async (event) => {
+  const email = useEmail()
+  const users = [
+    { email: 'user1@example.com', name: 'John' },
+    { email: 'user2@example.com', name: 'Jane' },
+    { email: 'user3@example.com', name: 'Bob' }
+  ]
+
+  const results = await Promise.allSettled(
+    users.map(user =>
+      email.send({
+        to: user.email,
+        subject: `Hello ${user.name}!`,
+        body: `Personalized message for ${user.name}`
+      })
+    )
+  )
+
+  const successful = results.filter(r => r.status === 'fulfilled').length
+  const failed = results.filter(r => r.status === 'rejected').length
+
+  return {
+    total: users.length,
+    successful,
+    failed
+  }
+})
+```
+
+### Email Validation
+
+Validate email addresses before sending:
+
+```ts [server/api/validated-email.ts]
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email)
+}
+
+export default defineEventHandler(async (event) => {
+  const { to, subject, body } = await readBody(event)
+
+  if (!isValidEmail(to)) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Invalid email address'
+    })
+  }
+
+  const email = useEmail()
+
+  return await email.send({ to, subject, body })
+})
+```
+
+## Provider-Specific Features
+
+### MailCatcher
+- All emails are caught and stored locally
+- Perfect for development and testing
+- View emails in the devtools interface
+
+### Mailgun
+- Production-ready email delivery
+- Detailed delivery tracking and analytics
+- Advanced features like scheduled sending
+
+## Common Patterns
+
+### User Registration Email
+
+```ts [server/api/auth/register.post.ts]
+import EmailVerificationTemplate from '#layers/email/server/emails/email-verification.vue'
+
+export default defineEventHandler(async (event) => {
+  const { email: userEmail, name } = await readBody(event)
+
+  // Create user in database...
+
+  // Send verification email
+  const emailService = useEmail()
+
+  await emailService.send({
+    to: userEmail,
+    subject: 'Verify your email address',
+    template: EmailVerificationTemplate,
+    data: {
+      userName: name,
+      verificationUrl: `https://yourapp.com/verify?token=${verificationToken}`
+    }
+  })
+
+  return { success: true }
+})
+```
+
+### Password Reset Email
+
+```ts [server/api/auth/forgot-password.post.ts]
+import PasswordResetTemplate from '#layers/email/server/emails/password-reset.vue'
+
+export default defineEventHandler(async (event) => {
+  const { email: userEmail } = await readBody(event)
+
+  // Generate reset token...
+
+  const emailService = useEmail()
+
+  await emailService.send({
+    to: userEmail,
+    subject: 'Reset your password',
+    template: PasswordResetTemplate,
+    data: {
+      resetUrl: `https://yourapp.com/reset?token=${resetToken}`,
+      expiresIn: '1 hour'
+    }
+  })
+
+  return { success: true }
+})
+```
+
+## Next Steps
+
+- [Learn about email templates](/guides/templates) and Vue Email components
+- [Configure email providers](/guides/providers) for different environments
+- [Use hooks](/guides/hooks) to customize email behavior
+- [Explore the devtools](/guides/devtools) for testing and debugging

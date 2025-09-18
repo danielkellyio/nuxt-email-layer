@@ -1,0 +1,431 @@
+---
+title: Development Tools
+description: Use the integrated email devtools for testing, debugging, and previewing emails during development.
+icon: lucide:wrench
+---
+
+# Development Tools
+
+The Nuxt Email Layer includes powerful development tools that make it easy to test, debug, and preview emails during development. The devtools provide a complete email testing environment without needing external email services.
+
+## Overview
+
+The email devtools provide:
+
+- **📧 Email Inbox** - View all emails sent during development
+- **🧪 Test Email Sending** - Send test emails with sample data
+- **🔍 Email Preview** - Preview email content in a browser-compatible format
+- **🗑️ Email Management** - Clear email history and manage individual emails
+- **⚡ Real-time Updates** - See new emails as they're sent
+
+## Accessing the Devtools
+
+The devtools are automatically available when running your Nuxt application in development mode.
+
+### URL Access
+
+Visit the devtools interface at:
+```
+http://localhost:3000/__email-devtools
+```
+
+### Nuxt Devtools Integration
+
+The email devtools are also integrated with Nuxt DevTools. Look for the "Email" tab in your Nuxt DevTools panel.
+
+## Interface Overview
+
+### Email List Sidebar
+
+The left sidebar shows all caught emails with:
+- **Recipient email address**
+- **Sender email address**
+- **Email subject**
+- **Timestamp**
+- **Quick delete button**
+
+### Email Preview Panel
+
+The main panel displays:
+- **Email metadata** (to, from, date)
+- **Subject line**
+- **Rendered email content** in an iframe
+- **Email actions** (delete, etc.)
+
+### Toolbar Actions
+
+- **Send Test** - Send a sample email for testing
+- **Refresh** - Reload the email list
+- **Clear All** - Delete all stored emails
+
+## Using the Devtools
+
+### Basic Workflow
+
+1. **Start your development server**
+   ```bash
+   npm run dev
+   # or
+   pnpm dev
+   ```
+
+2. **Open the devtools**
+   Navigate to `http://localhost:3000/__email-devtools`
+
+3. **Send test emails**
+   Use your application's email functionality or click "Send Test"
+
+4. **Review emails**
+   Click on emails in the sidebar to preview their content
+
+### Sending Test Emails
+
+Use the "Send Test" button to quickly send sample emails for testing:
+
+```ts [server/api/__devtools/emails/send.get.ts]
+import TestEmail from '#layers/email/server/emails/two-factor-auth.vue'
+
+export default defineEventHandler(async (event) => {
+  const email = useEmail()
+
+  return await email.send({
+    to: 'test@example.com',
+    subject: 'Test Email from Devtools',
+    template: TestEmail,
+    data: {
+      userName: 'Test User',
+      verificationCode: '123456',
+      expiresIn: '10 minutes',
+      supportUrl: 'https://help.example.com'
+    }
+  })
+})
+```
+
+### Testing Your Email Templates
+
+Create dedicated test endpoints for your email templates:
+
+```ts [server/api/test/welcome-email.ts]
+import WelcomeEmail from '~/server/emails/welcome.vue'
+
+export default defineEventHandler(async (event) => {
+  const query = getQuery(event)
+  const email = useEmail()
+
+  return await email.send({
+    to: query.email as string || 'test@example.com',
+    subject: 'Welcome Email Test',
+    template: WelcomeEmail,
+    data: {
+      userName: query.name as string || 'Test User',
+      userEmail: query.email as string || 'test@example.com',
+      dashboardUrl: 'https://app.example.com/dashboard',
+      supportUrl: 'https://help.example.com'
+    }
+  })
+})
+```
+
+Then test with different parameters:
+```
+http://localhost:3000/api/test/welcome-email?name=John&email=john@example.com
+```
+
+## Testing Different Email Types
+
+### Transactional Emails
+
+Test order confirmations, password resets, and other transactional emails:
+
+```ts [server/api/test/order-confirmation.ts]
+import OrderConfirmationEmail from '~/server/emails/order-confirmation.vue'
+
+export default defineEventHandler(async (event) => {
+  const email = useEmail()
+
+  return await email.send({
+    to: 'customer@example.com',
+    subject: 'Order Confirmation #12345',
+    template: OrderConfirmationEmail,
+    data: {
+      customerName: 'John Doe',
+      orderNumber: '12345',
+      orderItems: [
+        { name: 'Product A', quantity: 2, price: 29.99 },
+        { name: 'Product B', quantity: 1, price: 49.99 }
+      ],
+      totalAmount: 109.97,
+      trackingUrl: 'https://shipping.example.com/track/12345'
+    }
+  })
+})
+```
+
+### Newsletter Emails
+
+Test marketing and newsletter content:
+
+```ts [server/api/test/newsletter.ts]
+import NewsletterEmail from '~/server/emails/newsletter.vue'
+
+export default defineEventHandler(async (event) => {
+  const email = useEmail()
+
+  return await email.send({
+    to: 'subscriber@example.com',
+    subject: 'Weekly Newsletter - Tech Updates',
+    template: NewsletterEmail,
+    data: {
+      subscriberName: 'Jane Smith',
+      articles: [
+        {
+          title: 'New Vue 3.4 Features',
+          excerpt: 'Discover the latest features in Vue 3.4 including improved performance and developer experience.',
+          url: 'https://blog.example.com/vue-3-4-features',
+          image: 'https://example.com/images/vue-article.jpg'
+        },
+        {
+          title: 'Building Scalable APIs',
+          excerpt: 'Best practices for designing APIs that can handle millions of requests.',
+          url: 'https://blog.example.com/scalable-apis'
+        }
+      ],
+      unsubscribeUrl: 'https://example.com/unsubscribe?token=abc123'
+    }
+  })
+})
+```
+
+## Debugging Email Issues
+
+### Template Rendering Issues
+
+If templates aren't rendering correctly:
+
+1. **Check the email preview** in the devtools
+2. **Look for console errors** in the browser developer tools
+3. **Verify template data** by logging it in your API endpoint
+
+```ts [server/api/debug-template.ts]
+import MyTemplate from '~/server/emails/my-template.vue'
+
+export default defineEventHandler(async (event) => {
+  const email = useEmail()
+
+  const templateData = {
+    userName: 'Debug User',
+    actionUrl: 'https://example.com/action'
+  }
+
+  // Log template data for debugging
+  console.log('Template data:', templateData)
+
+  try {
+    const result = await email.send({
+      to: 'debug@example.com',
+      subject: 'Debug Template',
+      template: MyTemplate,
+      data: templateData
+    })
+
+    console.log('Email sent successfully:', result.id)
+    return result
+
+  } catch (error) {
+    console.error('Template rendering failed:', error)
+    throw error
+  }
+})
+```
+
+### Provider Configuration Issues
+
+Test provider configuration:
+
+```ts [server/api/test-provider.ts]
+export default defineEventHandler(async (event) => {
+  try {
+    const email = useEmail()
+    console.log('Provider name:', email.name)
+
+    const result = await email.send({
+      to: 'test@example.com',
+      subject: 'Provider Test',
+      body: 'Testing provider configuration'
+    })
+
+    return {
+      success: true,
+      provider: email.name,
+      emailId: result.id,
+      message: result.message
+    }
+
+  } catch (error) {
+    console.error('Provider test failed:', error)
+    return {
+      success: false,
+      error: error.message,
+      provider: 'unknown'
+    }
+  }
+})
+```
+
+## Advanced Testing Scenarios
+
+### Testing with Different Data Sets
+
+Create comprehensive test suites for your templates:
+
+```ts [server/api/test/template-variations.ts]
+import WelcomeEmail from '~/server/emails/welcome.vue'
+
+const testCases = [
+  {
+    name: 'basic-user',
+    data: {
+      userName: 'John Doe',
+      userEmail: 'john@example.com',
+      dashboardUrl: 'https://app.example.com/dashboard'
+    }
+  },
+  {
+    name: 'long-name-user',
+    data: {
+      userName: 'Dr. Jonathan Alexander Smith-Wilson III',
+      userEmail: 'jonathan.smith-wilson@very-long-domain-name.co.uk',
+      dashboardUrl: 'https://app.example.com/dashboard'
+    }
+  },
+  {
+    name: 'special-chars-user',
+    data: {
+      userName: 'José María Azuña-Óñate',
+      userEmail: 'jose.maria@empresa-española.es',
+      dashboardUrl: 'https://app.example.com/dashboard'
+    }
+  }
+]
+
+export default defineEventHandler(async (event) => {
+  const query = getQuery(event)
+  const testCase = query.case as string || 'basic-user'
+
+  const selectedTest = testCases.find(tc => tc.name === testCase)
+  if (!selectedTest) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: `Test case '${testCase}' not found`
+    })
+  }
+
+  const email = useEmail()
+
+  return await email.send({
+    to: selectedTest.data.userEmail,
+    subject: `Welcome Test - ${selectedTest.name}`,
+    template: WelcomeEmail,
+    data: selectedTest.data
+  })
+})
+```
+
+Test different cases:
+```
+/api/test/template-variations?case=long-name-user
+/api/test/template-variations?case=special-chars-user
+```
+
+### Testing Email Hooks
+
+Verify that your email hooks are working correctly:
+
+```ts [server/api/test-hooks.ts]
+export default defineEventHandler(async (event) => {
+  const email = useEmail()
+
+  // This email should trigger any registered hooks
+  const result = await email.send({
+    to: 'hooks-test@example.com',
+    subject: 'Testing Email Hooks',
+    body: 'This email tests the hook system.'
+  })
+
+  return {
+    emailId: result.id,
+    message: 'Check server logs for hook execution',
+    sentData: result.sentData
+  }
+})
+```
+
+## Troubleshooting
+
+### Common Issues
+
+**Emails not appearing in devtools:**
+- Ensure you're using the `mailcatcher` provider
+- Check that the storage directory has write permissions
+- Verify the storage key configuration
+
+**Template rendering errors:**
+- Check Vue Email component imports
+- Verify template data types match component props
+- Look for missing required props
+
+**Devtools interface not loading:**
+- Ensure you're in development mode
+- Check that the route `/__email-devtools` is accessible
+- Verify the email devtools module is enabled
+
+### Configuration Verification
+
+Create a diagnostic endpoint to check your configuration:
+
+```ts [server/api/email-config.ts]
+export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig()
+
+  return {
+    provider: config.email?.provider || 'not set',
+    defaultFrom: config.email?.defaultFrom || 'not set',
+    mailcatcher: {
+      storageKey: config.email?.mailcatcher?.storageKey || 'not set'
+    },
+    devMode: process.env.NODE_ENV === 'development',
+    devtoolsEnabled: config.emailDevtools?.devtools !== false
+  }
+})
+```
+
+## Production Considerations
+
+### Disabling Devtools in Production
+
+The devtools are automatically disabled in production, but you can explicitly control this:
+
+```ts [nuxt.config.ts]
+export default defineNuxtConfig({
+  emailDevtools: {
+    devtools: process.env.NODE_ENV === 'development'
+  }
+})
+```
+
+### Cleaning Up Development Data
+
+Clear development email data when switching to production:
+
+```bash
+# Remove mailcatcher storage
+rm -rf ./.data/mailcatcher
+```
+
+## Next Steps
+
+- [Learn about email providers](/guides/providers) for production deployment
+- [Use hooks](/guides/hooks) to customize email behavior
+- [Create custom templates](/guides/templates) optimized for your use case
+- [Configure production settings](/getting-started/installation) for live deployment

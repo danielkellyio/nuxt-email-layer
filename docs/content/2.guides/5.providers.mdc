@@ -1,0 +1,523 @@
+---
+title: Email Providers
+description: Configure and extend email providers including Mailgun, MailCatcher, and create custom providers for your needs.
+icon: lucide:mail-plus
+---
+
+# Email Providers
+
+The Nuxt Email Layer supports multiple email providers out of the box and provides an extensible system for adding custom providers. Choose the right provider for your development and production needs.
+
+## Built-in Providers
+
+### MailCatcher (Development)
+
+MailCatcher is perfect for development and testing environments. It intercepts emails instead of sending them, allowing you to preview and debug emails safely.
+
+#### Features
+- 📧 **Catches all emails** - No emails are actually sent
+- 🔍 **Email preview** - View emails in the devtools interface
+- 💾 **Local storage** - Emails stored in your filesystem
+- 🚀 **Zero setup** - Works out of the box
+- 🧪 **Perfect for testing** - Test templates and functionality safely
+
+#### Configuration
+
+```ts [nuxt.config.ts]
+export default defineNuxtConfig({
+  runtimeConfig: {
+    email: {
+      provider: 'mailcatcher',
+      defaultFrom: 'noreply@localhost.dev',
+      mailcatcher: {
+        storageKey: 'mailcatcher' // Storage key for caught emails
+      }
+    }
+  }
+})
+```
+
+#### Environment Variables
+
+```bash [.env]
+NUXT_EMAIL_PROVIDER=mailcatcher
+NUXT_EMAIL_DEFAULT_FROM=noreply@localhost.dev
+NUXT_EMAIL_MAILCATCHER_STORAGE_KEY=mailcatcher
+```
+
+#### Usage
+
+```ts [server/api/test-email.ts]
+export default defineEventHandler(async (event) => {
+  const email = useEmail() // Returns MailCatcher provider
+
+  const result = await email.send({
+    to: 'user@example.com',
+    subject: 'Test Email',
+    body: 'This email will be caught and stored locally'
+  })
+
+  // result.id contains the caught email ID
+  // result.message indicates it was caught
+  return result
+})
+```
+
+### Mailgun (Production)
+
+Mailgun is a robust email delivery service perfect for production applications with advanced features and reliable delivery.
+
+#### Features
+- 📬 **Reliable delivery** - Enterprise-grade email infrastructure
+- 📊 **Analytics & tracking** - Detailed delivery and engagement metrics
+- 🔐 **Security** - DKIM signing and SPF records
+- 🌍 **Global delivery** - Worldwide email infrastructure
+- 📈 **Scalable** - Handle millions of emails
+
+#### Prerequisites
+- Mailgun account ([sign up here](https://www.mailgun.com/))
+- Verified domain
+- API key with sending permissions
+
+#### Configuration
+
+```ts [nuxt.config.ts]
+export default defineNuxtConfig({
+  runtimeConfig: {
+    email: {
+      provider: 'mailgun',
+      defaultFrom: 'noreply@yourdomain.com',
+      mailgun: {
+        apiKey: process.env.MAILGUN_API_KEY,
+        domain: process.env.MAILGUN_DOMAIN
+      }
+    }
+  }
+})
+```
+
+#### Environment Variables
+
+```bash [.env]
+NUXT_EMAIL_PROVIDER=mailgun
+NUXT_EMAIL_DEFAULT_FROM=noreply@yourdomain.com
+NUXT_EMAIL_MAILGUN_API_KEY=key-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+NUXT_EMAIL_MAILGUN_DOMAIN=mg.yourdomain.com
+```
+
+#### Usage
+
+```ts [server/api/send-production-email.ts]
+export default defineEventHandler(async (event) => {
+  const email = useEmail() // Returns Mailgun provider
+
+  const result = await email.send({
+    to: 'customer@example.com',
+    subject: 'Order Confirmation',
+    body: 'Your order has been confirmed and is being processed.'
+  })
+
+  // result.id contains Mailgun message ID
+  // result.metadata contains Mailgun response data
+  return result
+})
+```
+
+## Provider Comparison
+
+| Feature | MailCatcher | Mailgun |
+|---------|-------------|---------|
+| **Environment** | Development | Production |
+| **Email Delivery** | Caught locally | Actually sent |
+| **Setup Complexity** | Zero config | API key required |
+| **Cost** | Free | Paid service |
+| **Analytics** | Basic preview | Advanced tracking |
+| **Volume Limits** | None | Based on plan |
+| **Reliability** | 100% (caught) | 99.9%+ uptime |
+
+## Environment-Specific Configuration
+
+Configure different providers for different environments:
+
+```ts [nuxt.config.ts]
+export default defineNuxtConfig({
+  runtimeConfig: {
+    email: {
+      provider: process.env.NODE_ENV === 'production' ? 'mailgun' : 'mailcatcher',
+      defaultFrom: process.env.NODE_ENV === 'production'
+        ? 'noreply@yourdomain.com'
+        : 'hello@localhost.dev',
+
+      // Development settings
+      mailcatcher: {
+        storageKey: 'mailcatcher'
+      },
+
+      // Production settings
+      mailgun: {
+        apiKey: process.env.MAILGUN_API_KEY,
+        domain: process.env.MAILGUN_DOMAIN
+      }
+    }
+  }
+})
+```
+
+## Creating Custom Providers
+
+Extend the email layer with your own providers by implementing the `EmailProvider` interface.
+
+### Provider Interface
+
+```ts
+interface EmailProvider {
+  name: EmailProviders
+  send: (email: EmailParams) => Promise<EmailResponse>
+}
+```
+
+### Base Provider Class
+
+Extend the `BaseProvider` class for automatic hook integration:
+
+```ts [server/providers/custom-provider.ts]
+import { BaseProvider } from '#layers/email/server/libs/useEmail/providers/base'
+import type { EmailParams, EmailResponse } from '#layers/email/server/libs/useEmail/types'
+
+class CustomProvider extends BaseProvider {
+  name = 'custom' as const
+
+  constructor() {
+    super()
+    // Initialize your provider here
+    const config = useRuntimeConfig()
+    // Access config.email.custom for provider-specific settings
+  }
+
+  async commitSend(email: EmailParams): Promise<EmailResponse> {
+    // Ensure email has body content
+    if (!('body' in email)) {
+      throw new Error('Email body is required')
+    }
+
+    try {
+      // Your provider-specific sending logic here
+      const response = await this.sendViaCustomService(email)
+
+      return {
+        id: response.messageId,
+        message: 'Email sent via custom provider',
+        metadata: response,
+        sentData: {
+          ...email,
+          from: this.defaultFrom || email.from || ''
+        }
+      }
+    } catch (error) {
+      console.error('Custom provider send error:', error)
+      throw new Error('Failed to send email via custom provider', {
+        cause: error
+      })
+    }
+  }
+
+  private async sendViaCustomService(email: EmailParams) {
+    // Implement your email sending logic
+    // Return response data
+    return {
+      messageId: `custom-${Date.now()}`,
+      // Other response data
+    }
+  }
+}
+
+export const useCustomProvider = () => new CustomProvider()
+```
+
+### Provider Factory
+
+Create a provider factory function:
+
+```ts [server/providers/custom-provider.ts]
+import type { EmailProviderFactory } from '#layers/email/server/libs/useEmail/types'
+
+export const useCustomProvider: EmailProviderFactory = () => new CustomProvider()
+```
+
+### Register Custom Provider
+
+Add your provider to the email layer:
+
+```ts [server/plugins/register-custom-provider.ts]
+import { useCustomProvider } from '~/server/providers/custom-provider'
+
+export default defineNitroPlugin(async (nitroApp) => {
+  // You would need to extend the core useEmail function
+  // This is a simplified example of how you might integrate
+  // a custom provider into your application
+})
+```
+
+### Advanced Custom Provider Example
+
+Here's a more complete example using a hypothetical email service:
+
+```ts [server/providers/sendgrid-provider.ts]
+import { BaseProvider } from '#layers/email/server/libs/useEmail/providers/base'
+import type {
+  EmailParams,
+  EmailResponse,
+  EmailProviderFactory
+} from '#layers/email/server/libs/useEmail/types'
+
+class SendGridProvider extends BaseProvider {
+  name = 'sendgrid' as const
+  private apiKey: string
+
+  constructor() {
+    super()
+    const config = useRuntimeConfig()
+
+    if (!config?.email?.sendgrid?.apiKey) {
+      throw new Error('SendGrid API key is required')
+    }
+
+    this.apiKey = config.email.sendgrid.apiKey
+  }
+
+  async commitSend(email: EmailParams): Promise<EmailResponse> {
+    if (!('body' in email)) {
+      throw new Error('Email body is required')
+    }
+
+    try {
+      // SendGrid API call
+      const response = await $fetch('https://api.sendgrid.com/v3/mail/send', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: {
+          personalizations: [{
+            to: [{ email: email.to }]
+          }],
+          from: { email: this.defaultFrom || email.from },
+          subject: email.subject,
+          content: [{
+            type: 'text/html',
+            value: email.body
+          }]
+        }
+      })
+
+      return {
+        id: response.headers?.['x-message-id'] || `sendgrid-${Date.now()}`,
+        message: 'Email sent via SendGrid',
+        metadata: response,
+        sentData: {
+          ...email,
+          from: this.defaultFrom || email.from || ''
+        }
+      }
+    } catch (error) {
+      console.error('SendGrid send error:', error)
+      throw new Error('Failed to send email via SendGrid', {
+        cause: error
+      })
+    }
+  }
+}
+
+export const useSendGridProvider: EmailProviderFactory = () => new SendGridProvider()
+```
+
+### Configuration for Custom Provider
+
+```ts [nuxt.config.ts]
+export default defineNuxtConfig({
+  runtimeConfig: {
+    email: {
+      provider: 'sendgrid',
+      defaultFrom: 'noreply@yourdomain.com',
+      sendgrid: {
+        apiKey: process.env.SENDGRID_API_KEY
+      }
+    }
+  }
+})
+```
+
+## Provider-Specific Features
+
+### MailCatcher Storage Management
+
+Access and manage MailCatcher storage directly:
+
+```ts [server/api/email-storage.ts]
+export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig()
+  const storage = useStorage(config.email.mailcatcher.storageKey)
+
+  // Get all stored emails
+  const keys = await storage.getKeys()
+  const emails = await Promise.all(
+    keys.map(async (key) => ({
+      id: key,
+      ...await storage.getItem(key)
+    }))
+  )
+
+  return { emails }
+})
+```
+
+### Mailgun Advanced Features
+
+Leverage Mailgun's advanced features:
+
+```ts [server/api/mailgun-advanced.ts]
+export default defineEventHandler(async (event) => {
+  const email = useEmail()
+
+  if (email.name !== 'mailgun') {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'This endpoint requires Mailgun provider'
+    })
+  }
+
+  // Send with Mailgun-specific features
+  const result = await email.send({
+    to: 'user@example.com',
+    subject: 'Advanced Mailgun Email',
+    body: '<h1>Hello from Mailgun!</h1><p>This email uses advanced features.</p>',
+    // Note: Advanced features would need to be implemented
+    // in a custom Mailgun provider extension
+  })
+
+  return result
+})
+```
+
+## Testing Providers
+
+### Provider Testing Utility
+
+Create a utility to test different providers:
+
+```ts [server/api/test-provider.ts]
+export default defineEventHandler(async (event) => {
+  const query = getQuery(event)
+  const testProvider = query.provider as string
+
+  try {
+    const email = useEmail()
+
+    const result = await email.send({
+      to: 'test@example.com',
+      subject: `Test from ${email.name} provider`,
+      body: `This is a test email sent using the ${email.name} provider.`
+    })
+
+    return {
+      success: true,
+      provider: email.name,
+      expectedProvider: testProvider,
+      emailId: result.id,
+      message: result.message,
+      metadata: result.metadata
+    }
+  } catch (error) {
+    return {
+      success: false,
+      provider: testProvider,
+      error: error.message
+    }
+  }
+})
+```
+
+### Provider Switch Testing
+
+Test switching between providers:
+
+```ts [server/api/test-provider-switch.ts]
+export default defineEventHandler(async (event) => {
+  // This would require environment variable changes or
+  // a more advanced provider selection mechanism
+
+  const results = []
+
+  // Test current provider
+  const email = useEmail()
+  try {
+    const result = await email.send({
+      to: 'test@example.com',
+      subject: 'Provider Test',
+      body: 'Testing current provider'
+    })
+
+    results.push({
+      provider: email.name,
+      success: true,
+      id: result.id
+    })
+  } catch (error) {
+    results.push({
+      provider: email.name,
+      success: false,
+      error: error.message
+    })
+  }
+
+  return { results }
+})
+```
+
+## Best Practices
+
+### Development vs Production
+
+- **Use MailCatcher for development** - Safe testing without sending real emails
+- **Use Mailgun for production** - Reliable delivery with proper infrastructure
+- **Environment-specific configuration** - Automatic provider switching
+
+### Provider Selection
+
+Choose providers based on:
+- **Volume requirements** - How many emails you need to send
+- **Delivery needs** - Transactional vs marketing emails
+- **Budget constraints** - Free development vs paid production
+- **Feature requirements** - Analytics, tracking, etc.
+
+### Error Handling
+
+Always handle provider-specific errors:
+
+```ts
+try {
+  const result = await email.send(emailData)
+  return { success: true, result }
+} catch (error) {
+  console.error(`Email failed with ${email.name} provider:`, error)
+
+  // Provider-specific error handling
+  if (email.name === 'mailgun' && error.status === 402) {
+    // Handle Mailgun payment issues
+    throw createError({
+      statusCode: 503,
+      statusMessage: 'Email service temporarily unavailable'
+    })
+  }
+
+  throw error
+}
+```
+
+## Next Steps
+
+- [Learn about hooks](/guides/hooks) to customize provider behavior
+- [Use the devtools](/guides/devtools) to test different providers
+- [Create email templates](/guides/templates) optimized for your chosen provider
+- [Configure production settings](/getting-started/installation) for your environment

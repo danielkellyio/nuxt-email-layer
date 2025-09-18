@@ -1,0 +1,240 @@
+---
+title: Installation & Configuration
+description: Learn how to install and configure the Nuxt Email Layer in your project with different email providers.
+icon: lucide:download
+---
+
+# Installation & Configuration
+
+Get started with the Nuxt Email Layer by installing the package and configuring your preferred email provider.
+
+## Installation
+
+Install the email layer as a dependency in your Nuxt project:
+
+::code-group
+```bash [npm]
+npm install nuxt-email-layer
+```
+```bash [pnpm]
+pnpm add nuxt-email-layer
+```
+```bash [yarn]
+yarn add nuxt-email-layer
+```
+::
+
+## Basic Setup
+
+Add the email layer to your Nuxt configuration:
+
+```ts [nuxt.config.ts]
+export default defineNuxtConfig({
+  extends: ['nuxt-email-layer'],
+  // Your other config...
+})
+```
+
+That's it! The layer will work out of the box with the default MailCatcher provider for development.
+
+## Runtime Configuration
+
+Configure email providers and settings using Nuxt's runtime configuration:
+
+```ts [nuxt.config.ts]
+export default defineNuxtConfig({
+  extends: ['nuxt-email-layer'],
+
+  runtimeConfig: {
+    email: {
+      provider: 'mailcatcher', // or 'mailgun'
+      defaultFrom: 'hello@yourapp.com',
+
+      // MailCatcher settings (development)
+      mailcatcher: {
+        storageKey: 'mailcatcher'
+      },
+
+      // Mailgun settings (production)
+      mailgun: {
+        apiKey: process.env.MAILGUN_API_KEY,
+        domain: process.env.MAILGUN_DOMAIN
+      }
+    }
+  }
+})
+```
+
+### Environment Variables
+
+For production usage with Mailgun, set these environment variables:
+
+```bash [.env]
+# Mailgun Configuration
+NUXT_EMAIL_PROVIDER=mailgun
+NUXT_EMAIL_DEFAULT_FROM=noreply@yourdomain.com
+NUXT_EMAIL_MAILGUN_API_KEY=key-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+NUXT_EMAIL_MAILGUN_DOMAIN=mg.yourdomain.com
+```
+
+## Provider Configuration
+
+### MailCatcher (Development)
+
+MailCatcher is perfect for development and testing. It catches emails instead of sending them, allowing you to review them in the devtools.
+
+```ts [nuxt.config.ts]
+export default defineNuxtConfig({
+  runtimeConfig: {
+    email: {
+      provider: 'mailcatcher',
+      defaultFrom: 'hello@localhost.dev',
+      mailcatcher: {
+        storageKey: 'mailcatcher' // Storage key for caught emails
+      }
+    }
+  }
+})
+```
+
+Features:
+- 📧 Catches all emails without sending them
+- 🔍 Review emails in the devtools interface
+- 💾 Stores emails in filesystem storage
+- 🚀 Zero external dependencies
+
+### Mailgun (Production)
+
+Mailgun is a reliable email service for production applications:
+
+```ts [nuxt.config.ts]
+export default defineNuxtConfig({
+  runtimeConfig: {
+    email: {
+      provider: 'mailgun',
+      defaultFrom: 'noreply@yourdomain.com',
+      mailgun: {
+        apiKey: process.env.MAILGUN_API_KEY,
+        domain: process.env.MAILGUN_DOMAIN
+      }
+    }
+  }
+})
+```
+
+Requirements:
+- Mailgun account and API key
+- Verified domain
+- API key with sending permissions
+
+## Development Tools
+
+The email layer includes development tools that are automatically enabled in development mode:
+
+```ts [nuxt.config.ts]
+export default defineNuxtConfig({
+  extends: ['nuxt-email-layer'],
+
+  // Optional: Configure devtools
+  emailDevtools: {
+    devtools: true // Enabled by default
+  }
+})
+```
+
+### Accessing the Email Devtools
+
+When running in development mode, visit:
+```
+http://localhost:3000/__email-devtools
+```
+
+The devtools provide:
+- 📧 Email inbox for reviewing caught emails
+- 🧪 Test email sending functionality
+- 🔍 Email content preview
+- 🗑️ Clear email history
+
+## Configuration Options
+
+### Core Settings
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `provider` | `string` | `'mailcatcher'` | Email provider to use |
+| `defaultFrom` | `string` | `'hello@world.com'` | Default sender email address |
+
+### MailCatcher Settings
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `storageKey` | `string` | `'mailcatcher'` | Storage key for caught emails |
+
+### Mailgun Settings
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `apiKey` | `string` | `''` | Mailgun API key |
+| `domain` | `string` | `''` | Mailgun domain |
+
+## Environment-Specific Configuration
+
+Configure different providers for different environments:
+
+```ts [nuxt.config.ts]
+export default defineNuxtConfig({
+  extends: ['nuxt-email-layer'],
+
+  runtimeConfig: {
+    email: {
+      // Use MailCatcher in development, Mailgun in production
+      provider: process.env.NODE_ENV === 'production' ? 'mailgun' : 'mailcatcher',
+      defaultFrom: process.env.NODE_ENV === 'production'
+        ? 'noreply@yourdomain.com'
+        : 'hello@localhost.dev',
+
+      mailcatcher: {
+        storageKey: 'mailcatcher'
+      },
+
+      mailgun: {
+        apiKey: process.env.MAILGUN_API_KEY,
+        domain: process.env.MAILGUN_DOMAIN
+      }
+    }
+  }
+})
+```
+
+## Verifying Installation
+
+Create a test API endpoint to verify your installation:
+
+```ts [server/api/test-email.ts]
+export default defineEventHandler(async (event) => {
+  const email = useEmail()
+
+  try {
+    const result = await email.send({
+      to: 'test@example.com',
+      subject: 'Test Email',
+      body: 'Hello from Nuxt Email Layer!'
+    })
+
+    return { success: true, result }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+```
+
+Visit `/api/test-email` to test your configuration. Check the devtools at `/__email-devtools` to see the caught email.
+
+## Next Steps
+
+Now that you have the layer installed and configured:
+
+- [Learn how to send emails](/guides/sending-emails) with the `useEmail()` composable
+- [Explore email templates](/guides/templates) and Vue Email components
+- [Configure email providers](/guides/providers) for your specific needs
+- [Use the devtools](/guides/devtools) for testing and debugging

@@ -1,139 +1,117 @@
 ---
 title: Introduction
-description: A pnpm monorepo for developing a single reusable Nuxt layer with documentation and playground.
-icon: lucide:info
+description: A complete email solution for Nuxt applications with Vue templates, multiple providers, devtools integration, and extensible hooks system.
+icon: lucide:mail
 ---
 
+# Nuxt Email Layer
 
+The **Nuxt Email Layer** is a comprehensive email solution that brings powerful email functionality to your Nuxt applications. It provides everything you need to send beautiful, template-driven emails with multiple provider support, development tools, and an extensible architecture.
 
-## Structure
+## Key Features
 
-```
-├── layer/              # The Nuxt layer package
-├── playground/         # Development playground for testing the layer
-├── docs/              # Documentation site (thanks shadcn-docs-nuxt!)
-├── pnpm-workspace.yaml # Workspace configuration
-└── package.json       # Root workspace config
-```
-[Documentation Template Thanks to shadcn-docs-nuxt](https://shadcn-docs-nuxt.vercel.app)
+::list{type="success"}
+- **🎨 Vue Email Templates** - Create beautiful emails using Vue components with full TypeScript support
+- **📧 Multiple Providers** - Built-in support for Mailgun and MailCatcher with extensible provider system
+- **🔧 Development Tools** - Integrated devtools for testing and debugging emails during development
+- **⚡ Server-Side Ready** - Works seamlessly with Nuxt's server-side rendering and API routes
+- **🪝 Extensible Hooks** - Intercept and modify emails before/after sending with a powerful hooks system
+- **🛡️ Type Safety** - Full TypeScript support with comprehensive type definitions
+- **📦 Zero Config** - Works out of the box with sensible defaults
+::
+
+## What's Included
+
+### Email Templates
+Pre-built, production-ready email templates for common use cases:
+- Welcome emails
+- Password reset
+- Email verification
+- Two-factor authentication
+- Account notifications
+- Login alerts
+
+### Email Providers
+Support for popular email services:
+- **Mailgun** - Production email delivery
+- **MailCatcher** - Development email testing and debugging
+
+### Development Experience
+Integrated tools for email development:
+- **Email Devtools** - Visual interface for testing and previewing emails
+- **Template Hot Reload** - See changes instantly during development
+- **Email Storage** - Review sent emails in development
 
 ## Quick Start
 
-1. **Install dependencies**
+1. **Install the layer**
 
    ```bash
-   pnpm install
+   npm install nuxt-email-layer
+   # or
+   pnpm add nuxt-email-layer
    ```
 
-2. **Start development playground**
+2. **Add to your Nuxt config**
 
-   ```bash
-   pnpm play:dev
+   ```ts
+   // nuxt.config.ts
+   export default defineNuxtConfig({
+     extends: ['nuxt-email-layer']
+   })
    ```
 
-3. **View documentation**
+3. **Send your first email**
 
-   ```bash
-   pnpm docs:dev
+   ```ts
+   // server/api/send-welcome.ts
+   export default defineEventHandler(async (event) => {
+     const email = useEmail()
+
+     return await email.send({
+       to: 'user@example.com',
+       subject: 'Welcome!',
+       body: 'Welcome to our platform!'
+     })
+   })
    ```
 
-## Available Scripts
+## Architecture
 
-### Playground Scripts
+The Nuxt Email Layer is built with modularity and extensibility in mind:
 
-- `pnpm play:dev` - Start the playground for layer development
-- `pnpm play:prepare` - Prepare the playground (useful after layer changes)
-- `pnpm play:build` - Build the playground
-- `pnpm play:generate` - Generate static playground
-- `pnpm play:preview` - Preview the built playground
-
-### Documentation Scripts
-
-- `pnpm docs:dev` - Start the documentation site
-- `pnpm docs:build` - Build the documentation
-- `pnpm docs:generate` - Generate static documentation
-- `pnpm docs:preview` - Preview the built documentation
-
-### Layer Scripts
-
-- `pnpm layer:build` - Build the layer
-- `pnpm layer:generate` - Generate static layer
-- `pnpm layer:preview` - Preview the built layer
-- `pnpm layer:publish` - Publish the layer to npm
-
-### Other Scripts
-
-- `pnpm test` - Run tests (layer package)
-- `pnpm lint` - Lint all packages
-- `pnpm type-check` - Type check all packages
-
-## The Layer
-
-### nuxt-email-layer
-
-Located in `layer/`, this is your main Nuxt layer package.
-
-**Usage:**
-
-```ts
-// nuxt.config.ts
-export default defineNuxtConfig({
-  extends: "nuxt-email-layer",
-});
+```
+nuxt-email-layer/
+├── server/
+│   ├── libs/
+│   │   ├── useEmail/           # Core email functionality
+│   │   │   ├── providers/      # Email provider implementations
+│   │   │   └── types.ts        # Type definitions
+│   │   └── hookLib/            # Hooks system
+│   ├── emails/                 # Email template components
+│   └── utils/                  # Email utilities and rendering
+├── modules/
+│   └── mail-devtools/          # Development tools integration
+└── app/
+    └── pages/                  # Devtools UI pages
 ```
 
-## Development Workflow
+## Use Cases
 
-### Working on the Layer
+The Nuxt Email Layer is perfect for:
 
-1. Make changes to files in `layer/`
-2. Test in the playground with `pnpm play:dev`
-3. Document changes in `docs/content/`
+- **SaaS Applications** - User onboarding, notifications, and account management
+- **E-commerce Sites** - Order confirmations, shipping updates, and marketing emails
+- **Content Platforms** - Newsletter subscriptions and content notifications
+- **Authentication Systems** - Password resets, email verification, and security alerts
+- **Any Nuxt App** - Add professional email functionality to any project
 
-### Testing the Layer
+## Next Steps
 
-The `playground/` directory contains a Nuxt app that extends your layer:
+Ready to get started? Check out our guides:
 
-```bash
-# Start the playground
-pnpm play:dev
-
-# Build the playground
-pnpm play:build
-```
-
-### Publishing the Layer
-
-When ready to publish:
-
-```bash
-# Build and publish the layer
-pnpm layer:publish
-```
-
-## Documentation
-
-The documentation site is built with [shadcn-docs-nuxt template](https://shadcn-docs-nuxt.vercel.app)
-
-## Requirements
-
-- Node.js 18+
-- pnpm 8+
-- Nuxt 4+
-
-## Layer Development Tips
-
-1. **Components**: Add reusable components in `layer/components/`
-2. **Configuration**: Define layer config in `layer/app.config.ts`
-3. **Composables**: Add composables in `layer/composables/`
-4. **Plugins**: Add plugins in `layer/plugins/`
-5. **Testing**: Use the playground to test all functionality
-
-## Publishing
-
-The layer can be published to npm independently. Make sure to:
-
-1. Update the version in `layer/package.json`
-2. Test thoroughly in the playground
-3. Document changes in the docs
-4. Run `pnpm layer:publish`
+- [Installation & Configuration](/getting-started/installation) - Set up the layer in your project
+- [Sending Emails](/guides/sending-emails) - Learn the `useEmail()` composable
+- [Email Templates](/guides/templates) - Create beautiful Vue email templates
+- [Email Providers](/guides/providers) - Configure Mailgun, MailCatcher, and custom providers
+- [Development Tools](/guides/devtools) - Use the integrated email devtools

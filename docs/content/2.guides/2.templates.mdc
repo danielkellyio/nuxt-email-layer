@@ -1,0 +1,560 @@
+---
+title: Email Templates
+description: Create beautiful, maintainable email templates using Vue components and Vue Email components.
+icon: lucide:layout-template
+---
+
+# Email Templates
+
+The Nuxt Email Layer includes powerful templating capabilities using Vue components and the Vue Email library. Create beautiful, responsive, and maintainable email templates with full TypeScript support.
+
+## Overview
+
+Email templates are regular Vue components that use specialized email components from the Vue Email library. They're rendered server-side into HTML that's compatible with email clients.
+
+## Built-in Templates
+
+The layer includes several pre-built email templates ready for use:
+
+::list{type="success"}
+- **Welcome Email** - `welcome.vue` - User onboarding
+- **Email Verification** - `email-verification.vue` - Account verification
+- **Password Reset** - `password-reset.vue` - Password recovery
+- **Two-Factor Auth** - `two-factor-auth.vue` - 2FA codes
+- **Login Alert** - `login-alert.vue` - Security notifications
+- **Account Deactivation** - `account-deactivation.vue` - Account closure
+::
+
+## Using Built-in Templates
+
+Import and use templates in your server-side code:
+
+```ts [server/api/send-welcome.ts]
+import WelcomeEmail from '#layers/email/server/emails/welcome.vue'
+
+export default defineEventHandler(async (event) => {
+  const email = useEmail()
+
+  return await email.send({
+    to: 'user@example.com',
+    subject: 'Welcome to Our Platform!',
+    template: WelcomeEmail,
+    data: {
+      userName: 'John Doe',
+      userEmail: 'user@example.com',
+      dashboardUrl: 'https://app.example.com/dashboard',
+      supportUrl: 'https://help.example.com'
+    }
+  })
+})
+```
+
+## Creating Custom Templates
+
+Create your own email templates using Vue components and Vue Email components.
+
+### Basic Template Structure
+
+```vue [server/emails/custom-email.vue]
+<script setup lang="ts">
+import {
+  Html,
+  Head,
+  Preview,
+  Container,
+  Section,
+  Heading,
+  Text,
+  Button,
+  Link
+} from '@vue-email/components'
+
+// Define props with TypeScript
+defineProps({
+  userName: {
+    type: String,
+    required: true
+  },
+  actionUrl: {
+    type: String,
+    required: true
+  }
+})
+</script>
+
+<template>
+  <Html lang="en">
+    <Head />
+    <Preview>Welcome to our platform, {{ userName }}!</Preview>
+
+    <Container style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+      <Section style="padding: 20px;">
+        <Heading style="color: #333; font-size: 24px;">
+          Hello {{ userName }}!
+        </Heading>
+
+        <Text style="color: #666; line-height: 1.6;">
+          Welcome to our platform. We're excited to have you on board!
+        </Text>
+
+        <Button
+          :href="actionUrl"
+          style="background: #007bff; color: white; padding: 12px 24px; border-radius: 4px; text-decoration: none;"
+        >
+          Get Started
+        </Button>
+      </Section>
+    </Container>
+  </Html>
+</template>
+```
+
+### Using Custom Templates
+
+```ts [server/api/send-custom.ts]
+import CustomEmail from '~/server/emails/custom-email.vue'
+
+export default defineEventHandler(async (event) => {
+  const email = useEmail()
+
+  return await email.send({
+    to: 'user@example.com',
+    subject: 'Custom Email',
+    template: CustomEmail,
+    data: {
+      userName: 'Jane Doe',
+      actionUrl: 'https://example.com/action'
+    }
+  })
+})
+```
+
+## Vue Email Components
+
+The layer includes the full Vue Email component library. Here are the most commonly used components:
+
+### Layout Components
+
+```vue
+<template>
+  <Html lang="en">
+    <Head />
+    <Preview>Email preview text</Preview>
+
+    <Container style="max-width: 600px; margin: 0 auto;">
+      <Section style="padding: 20px;">
+        <!-- Content here -->
+      </Section>
+    </Container>
+  </Html>
+</template>
+```
+
+### Typography Components
+
+```vue
+<template>
+  <Heading
+    as="h1"
+    style="color: #333; font-size: 28px; font-weight: bold;"
+  >
+    Main Heading
+  </Heading>
+
+  <Text style="color: #666; font-size: 16px; line-height: 1.5;">
+    Body text content goes here.
+  </Text>
+
+  <Link
+    href="https://example.com"
+    style="color: #007bff; text-decoration: none;"
+  >
+    Click here
+  </Link>
+</template>
+```
+
+### Interactive Components
+
+```vue
+<template>
+  <Button
+    href="https://example.com/action"
+    style="
+      background: #007bff;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 4px;
+      text-decoration: none;
+      display: inline-block;
+    "
+  >
+    Call to Action
+  </Button>
+
+  <Hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+
+  <Img
+    src="https://example.com/logo.png"
+    alt="Company Logo"
+    width="120"
+    height="40"
+    style="display: block; margin: 0 auto;"
+  />
+</template>
+```
+
+## Advanced Template Examples
+
+### Transactional Email Template
+
+```vue [server/emails/order-confirmation.vue]
+<script setup lang="ts">
+import {
+  Html, Head, Preview, Container, Section,
+  Heading, Text, Button, Hr, Link
+} from '@vue-email/components'
+
+interface OrderItem {
+  name: string
+  quantity: number
+  price: number
+}
+
+defineProps({
+  customerName: {
+    type: String,
+    required: true
+  },
+  orderNumber: {
+    type: String,
+    required: true
+  },
+  orderItems: {
+    type: Array as PropType<OrderItem[]>,
+    required: true
+  },
+  totalAmount: {
+    type: Number,
+    required: true
+  },
+  trackingUrl: {
+    type: String,
+    required: true
+  }
+})
+</script>
+
+<template>
+  <Html lang="en">
+    <Head />
+    <Preview>Order #{{ orderNumber }} confirmed - Thank you for your purchase!</Preview>
+
+    <Container style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+      <!-- Header -->
+      <Section style="background: #f8f9fa; padding: 20px; text-align: center;">
+        <Heading style="color: #333; margin: 0;">
+          Order Confirmed!
+        </Heading>
+      </Section>
+
+      <!-- Content -->
+      <Section style="padding: 30px;">
+        <Text style="color: #333; font-size: 18px;">
+          Hi {{ customerName }},
+        </Text>
+
+        <Text style="color: #666; line-height: 1.6;">
+          Thank you for your order! We've received your payment and your order is being processed.
+        </Text>
+
+        <!-- Order Details -->
+        <Section style="background: #f8f9fa; padding: 20px; margin: 20px 0; border-radius: 8px;">
+          <Heading as="h3" style="color: #333; margin: 0 0 15px 0;">
+            Order #{{ orderNumber }}
+          </Heading>
+
+          <div v-for="item in orderItems" :key="item.name" style="margin-bottom: 10px;">
+            <Text style="margin: 0; color: #333;">
+              {{ item.quantity }}x {{ item.name }} - ${{ item.price.toFixed(2) }}
+            </Text>
+          </div>
+
+          <Hr style="border: none; border-top: 1px solid #ddd; margin: 15px 0;" />
+
+          <Text style="margin: 0; color: #333; font-weight: bold;">
+            Total: ${{ totalAmount.toFixed(2) }}
+          </Text>
+        </Section>
+
+        <Button
+          :href="trackingUrl"
+          style="
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+          "
+        >
+          Track Your Order
+        </Button>
+      </Section>
+
+      <!-- Footer -->
+      <Section style="background: #f8f9fa; padding: 20px; text-align: center;">
+        <Text style="color: #999; font-size: 14px; margin: 0;">
+          Questions? Reply to this email or
+          <Link href="mailto:support@example.com" style="color: #007bff;">
+            contact support
+          </Link>
+        </Text>
+      </Section>
+    </Container>
+  </Html>
+</template>
+```
+
+### Newsletter Template
+
+```vue [server/emails/newsletter.vue]
+<script setup lang="ts">
+import {
+  Html, Head, Preview, Container, Section,
+  Heading, Text, Button, Img, Hr, Link
+} from '@vue-email/components'
+
+interface Article {
+  title: string
+  excerpt: string
+  url: string
+  image?: string
+}
+
+defineProps({
+  subscriberName: {
+    type: String,
+    required: true
+  },
+  articles: {
+    type: Array as PropType<Article[]>,
+    required: true
+  },
+  unsubscribeUrl: {
+    type: String,
+    required: true
+  }
+})
+</script>
+
+<template>
+  <Html lang="en">
+    <Head />
+    <Preview>Your weekly newsletter - Latest articles and updates</Preview>
+
+    <Container style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+      <!-- Header -->
+      <Section style="background: #007bff; color: white; padding: 30px; text-align: center;">
+        <Heading style="color: white; margin: 0;">
+          Weekly Newsletter
+        </Heading>
+        <Text style="color: #cce7ff; margin: 5px 0 0 0;">
+          {{ new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          }) }}
+        </Text>
+      </Section>
+
+      <!-- Greeting -->
+      <Section style="padding: 30px 30px 20px 30px;">
+        <Text style="color: #333; font-size: 18px; margin: 0;">
+          Hi {{ subscriberName }},
+        </Text>
+        <Text style="color: #666; line-height: 1.6;">
+          Here are this week's top articles and updates from our blog.
+        </Text>
+      </Section>
+
+      <!-- Articles -->
+      <Section style="padding: 0 30px;">
+        <div v-for="(article, index) in articles" :key="index">
+          <Section style="margin-bottom: 30px;">
+            <Img
+              v-if="article.image"
+              :src="article.image"
+              :alt="article.title"
+              width="540"
+              height="200"
+              style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px;"
+            />
+
+            <Heading
+              as="h3"
+              style="color: #333; margin: 15px 0 10px 0; font-size: 20px;"
+            >
+              <Link :href="article.url" style="color: #333; text-decoration: none;">
+                {{ article.title }}
+              </Link>
+            </Heading>
+
+            <Text style="color: #666; line-height: 1.6; margin: 0 0 15px 0;">
+              {{ article.excerpt }}
+            </Text>
+
+            <Button
+              :href="article.url"
+              style="
+                background: #007bff;
+                color: white;
+                padding: 10px 20px;
+                border-radius: 4px;
+                text-decoration: none;
+                font-size: 14px;
+              "
+            >
+              Read More
+            </Button>
+          </Section>
+
+          <Hr
+            v-if="index < articles.length - 1"
+            style="border: none; border-top: 1px solid #eee; margin: 20px 0;"
+          />
+        </div>
+      </Section>
+
+      <!-- Footer -->
+      <Section style="background: #f8f9fa; padding: 30px; text-align: center; margin-top: 30px;">
+        <Text style="color: #999; font-size: 14px; margin: 0 0 10px 0;">
+          You're receiving this because you subscribed to our newsletter.
+        </Text>
+        <Link :href="unsubscribeUrl" style="color: #999; font-size: 12px;">
+          Unsubscribe from these emails
+        </Link>
+      </Section>
+    </Container>
+  </Html>
+</template>
+```
+
+## Best Practices
+
+### Template Organization
+
+Organize your templates in a logical structure:
+
+```
+server/
+├── emails/
+│   ├── auth/
+│   │   ├── welcome.vue
+│   │   ├── email-verification.vue
+│   │   └── password-reset.vue
+│   ├── orders/
+│   │   ├── confirmation.vue
+│   │   └── shipping.vue
+│   └── marketing/
+│       ├── newsletter.vue
+│       └── promotion.vue
+```
+
+### Styling Guidelines
+
+1. **Inline styles**: Email clients have limited CSS support, so use inline styles
+2. **Table-based layouts**: Use Vue Email components for reliable rendering
+3. **Web fonts**: Stick to web-safe fonts for maximum compatibility
+4. **Images**: Always include alt text and fallback content
+
+### Template Data Validation
+
+Use TypeScript interfaces to ensure type safety:
+
+```vue [server/emails/typed-template.vue]
+<script setup lang="ts">
+interface User {
+  id: string
+  name: string
+  email: string
+}
+
+interface TemplateProps {
+  user: User
+  actionUrl: string
+  expiresAt: Date
+}
+
+const props = defineProps<TemplateProps>()
+</script>
+```
+
+### Responsive Design
+
+Make your emails mobile-friendly:
+
+```vue
+<template>
+  <Container style="max-width: 600px; margin: 0 auto;">
+    <Section style="padding: 20px;">
+      <!-- Use percentage widths for mobile -->
+      <div style="width: 100%; max-width: 300px; margin: 0 auto;">
+        <Button
+          href="https://example.com"
+          style="
+            width: 100%;
+            padding: 15px;
+            background: #007bff;
+            color: white;
+            text-align: center;
+            display: block;
+          "
+        >
+          Full Width Button
+        </Button>
+      </div>
+    </Section>
+  </Container>
+</template>
+```
+
+## Testing Templates
+
+### Preview Templates
+Use the email devtools to preview your templates:
+
+1. Send test emails using your templates
+2. View them in the devtools at `/__email-devtools`
+3. Test different data combinations
+
+### Template Testing
+
+Create a test API endpoint for template development:
+
+```ts [server/api/test-template.ts]
+import MyTemplate from '~/server/emails/my-template.vue'
+
+export default defineEventHandler(async (event) => {
+  const query = getQuery(event)
+  const email = useEmail()
+
+  return await email.send({
+    to: 'test@example.com',
+    subject: 'Template Test',
+    template: MyTemplate,
+    data: {
+      userName: query.name || 'Test User',
+      // Add other test data
+    }
+  })
+})
+```
+
+## Next Steps
+
+- [Learn about email providers](/guides/providers) for sending your templates
+- [Use hooks](/guides/hooks) to customize template behavior
+- [Explore the devtools](/guides/devtools) for template testing
+- [Check out Vue Email components](https://vuemail.net/components) for more components

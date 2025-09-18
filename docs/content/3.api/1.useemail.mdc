@@ -1,0 +1,290 @@
+---
+title: useEmail()
+description: API reference for the useEmail composable, the main interface for sending emails in the Nuxt Email Layer.
+icon: lucide:code
+---
+
+# useEmail()
+
+The `useEmail()` composable is the primary interface for sending emails in your Nuxt application. It automatically selects the configured email provider and provides a consistent API.
+
+## Syntax
+
+```ts
+const email = useEmail()
+```
+
+## Return Value
+
+Returns an `EmailProvider` instance with the following interface:
+
+```ts
+interface EmailProvider {
+  name: string
+  send: (email: EmailParams) => Promise<EmailResponse>
+}
+```
+
+## Methods
+
+### `send(email: EmailParams)`
+
+Sends an email using the configured provider.
+
+#### Parameters
+
+```ts
+type EmailParams = {
+  from?: string        // Sender email (optional, uses defaultFrom if not provided)
+  to: string          // Recipient email address (required)
+  subject: string     // Email subject line (required)
+} & (
+  | { body: string }  // Plain text or HTML content
+  | { template: Component; data?: Record<string, unknown> } // Vue template with data
+)
+```
+
+#### Response
+
+```ts
+interface EmailResponse {
+  id: string                           // Unique email identifier
+  message: string                      // Success message
+  metadata: Record<string, any>        // Provider-specific response data
+  sentData: SentEmailData             // Final processed email data
+}
+
+interface SentEmailData extends EmailParams {
+  body: string                        // Rendered email body (templates are converted to HTML)
+}
+```
+
+## Usage Examples
+
+### Basic Text Email
+
+```ts [server/api/simple-email.ts]
+export default defineEventHandler(async (event) => {
+  const email = useEmail()
+
+  const result = await email.send({
+    to: 'user@example.com',
+    subject: 'Welcome!',
+    body: 'Thank you for joining our platform.'
+  })
+
+  return {
+    emailId: result.id,
+    message: result.message
+  }
+})
+```
+
+### HTML Email
+
+```ts [server/api/html-email.ts]
+export default defineEventHandler(async (event) => {
+  const email = useEmail()
+
+  const result = await email.send({
+    to: 'user@example.com',
+    subject: 'HTML Newsletter',
+    body: `
+      <h1>Welcome to our Newsletter!</h1>
+      <p>Here's what's new this week:</p>
+      <ul>
+        <li>Feature updates</li>
+        <li>Bug fixes</li>
+        <li>Community highlights</li>
+      </ul>
+    `
+  })
+
+  return result
+})
+```
+
+### Template Email
+
+```ts [server/api/template-email.ts]
+import WelcomeEmail from '#layers/email/server/emails/welcome.vue'
+
+export default defineEventHandler(async (event) => {
+  const email = useEmail()
+
+  const result = await email.send({
+    to: 'user@example.com',
+    subject: 'Welcome to Our Platform!',
+    template: WelcomeEmail,
+    data: {
+      userName: 'John Doe',
+      userEmail: 'user@example.com',
+      dashboardUrl: 'https://app.example.com/dashboard'
+    }
+  })
+
+  return result
+})
+```
+
+### Custom Sender
+
+```ts [server/api/custom-sender.ts]
+export default defineEventHandler(async (event) => {
+  const email = useEmail()
+
+  const result = await email.send({
+    from: 'support@example.com',
+    to: 'user@example.com',
+    subject: 'Support Response',
+    body: 'Your support ticket has been updated.'
+  })
+
+  return result
+})
+```
+
+## Error Handling
+
+The `send()` method throws errors for various failure conditions. Always wrap calls in try-catch blocks:
+
+```ts [server/api/safe-email.ts]
+export default defineEventHandler(async (event) => {
+  try {
+    const email = useEmail()
+
+    const result = await email.send({
+      to: 'user@example.com',
+      subject: 'Test Email',
+      body: 'This is a test.'
+    })
+
+    return {
+      success: true,
+      emailId: result.id
+    }
+
+  } catch (error) {
+    console.error('Email failed:', error)
+
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to send email',
+      data: { error: error.message }
+    })
+  }
+})
+```
+
+## Common Error Types
+
+### Configuration Errors
+
+```ts
+// Thrown when email provider is not configured
+Error: Email provider is not set
+
+// Thrown when required provider settings are missing
+Error: Mailgun API key and domain are required
+```
+
+### Validation Errors
+
+```ts
+// Thrown when email body is missing for providers that require it
+Error: Email body isn't set. Either provide one directly or use a template
+
+// Thrown when template rendering fails
+Error: Failed to render email template
+```
+
+### Provider Errors
+
+```ts
+// Provider-specific errors (e.g., Mailgun API errors)
+Error: Error sending email via Mailgun
+
+// Network or service errors
+Error: Email service temporarily unavailable
+```
+
+## Provider Information
+
+Access information about the current provider:
+
+```ts [server/api/provider-info.ts]
+export default defineEventHandler(async (event) => {
+  const email = useEmail()
+
+  return {
+    providerName: email.name,
+    isMailCatcher: email.name === 'mailcatcher',
+    isMailgun: email.name === 'mailgun'
+  }
+})
+```
+
+## TypeScript Support
+
+The `useEmail()` composable is fully typed. Import types for better development experience:
+
+```ts
+import type {
+  EmailParams,
+  EmailResponse,
+  EmailProvider,
+  SentEmailData
+} from '#layers/email/server/libs/useEmail/types'
+
+export default defineEventHandler(async (event) => {
+  const email: EmailProvider = useEmail()
+
+  const emailData: EmailParams = {
+    to: 'user@example.com',
+    subject: 'Typed Email',
+    body: 'This email is fully typed!'
+  }
+
+  const result: EmailResponse = await email.send(emailData)
+
+  return result
+})
+```
+
+## Integration with Hooks
+
+The `useEmail()` composable automatically integrates with the hooks system. All emails sent through `useEmail()` will trigger registered hooks:
+
+```ts [server/plugins/email-hooks.ts]
+import { emailLayerHooks } from '#layers/email/server/utils/email'
+
+export default defineNitroPlugin(async (nitroApp) => {
+  // This hook will be called for all useEmail().send() calls
+  emailLayerHooks.hook('send:before', (email, context) => {
+    console.log(`Sending email via ${context.provider}`)
+    return email
+  })
+})
+```
+
+## Performance Considerations
+
+- **Template Rendering**: Templates are rendered server-side, which adds processing time
+- **Provider Selection**: Provider is selected once per `useEmail()` call based on runtime config
+- **Error Handling**: Always implement proper error handling to prevent blocking operations
+- **Async Operations**: The `send()` method is async and should be awaited
+
+## Best Practices
+
+1. **Always handle errors**: Wrap `send()` calls in try-catch blocks
+2. **Validate input data**: Check email addresses and required fields before sending
+3. **Use templates for complex emails**: Templates are more maintainable than inline HTML
+4. **Log email activity**: Use hooks or direct logging for audit trails
+5. **Test with MailCatcher**: Use MailCatcher in development to avoid sending real emails
+
+## Related APIs
+
+- [Email Templates](/guides/templates) - Creating and using Vue email templates
+- [Email Providers](/guides/providers) - Configuring different email providers
+- [Hooks System](/guides/hooks) - Customizing email behavior with hooks
+- [Development Tools](/guides/devtools) - Testing and debugging emails

@@ -1,0 +1,434 @@
+---
+title: Hooks & Customization
+description: Use the powerful hooks system to intercept, modify, and extend email functionality before and after sending.
+icon: lucide:git-branch
+---
+
+# Hooks & Customization
+
+The Nuxt Email Layer includes a powerful hooks system that allows you to intercept and modify emails before and after they're sent. This enables advanced customization, logging, analytics, and custom business logic.
+
+## Overview
+
+The hooks system provides two main hook points:
+
+- **`send:before`** - Called before an email is sent, allows modification of email data
+- **`send:after`** - Called after an email is sent, allows processing of the response
+
+## Basic Usage
+
+Register hooks using the `emailLayerHooks` instance:
+
+```ts [server/plugins/email-hooks.ts]
+import { emailLayerHooks } from '#layers/email/server/utils/email'
+
+export default defineNitroPlugin(async (nitroApp) => {
+  // Hook into emails before sending
+  emailLayerHooks.hook('send:before', (email, context) => {
+    console.log('Sending email via', context.provider)
+    console.log('Email data:', email)
+
+    // Return the email (can be modified)
+    return email
+  })
+
+  // Hook into emails after sending
+  emailLayerHooks.hook('send:after', (response, context) => {
+    console.log('Email sent successfully:', response.id)
+    console.log('Provider used:', context.provider)
+
+    // Return the response (can be modified)
+    return response
+  })
+})
+```
+
+## Hook Types & Parameters
+
+### `send:before` Hook
+
+Called before an email is sent, allowing you to modify the email data.
+
+```ts
+interface SendBeforeHook {
+  (
+    payload: EmailParams,
+    context: { provider: EmailProviders }
+  ): EmailParams
+}
+```
+
+**Parameters:**
+- `payload` - The email data being sent
+- `context.provider` - The email provider being used (`'mailgun'` or `'mailcatcher'`)
+
+**Return:** Modified email data
+
+### `send:after` Hook
+
+Called after an email is sent, allowing you to process the response.
+
+```ts
+interface SendAfterHook {
+  (
+    payload: EmailResponse,
+    context: {
+      provider: EmailProviders
+      email: EmailParams
+    }
+  ): EmailResponse
+}
+```
+
+**Parameters:**
+- `payload` - The response from the email provider
+- `context.provider` - The email provider that was used
+- `context.email` - The final email data that was sent
+
+**Return:** Modified response data
+
+## Practical Examples
+
+### Email Logging
+
+Log all emails sent through your application:
+
+```ts [server/plugins/email-logging.ts]
+import { emailLayerHooks } from '#layers/email/server/utils/email'
+
+export default defineNitroPlugin(async (nitroApp) => {
+  emailLayerHooks.hook('send:before', (email, context) => {
+    console.log(`📧 Sending email via ${context.provider}:`, {
+      to: email.to,
+      from: email.from,
+      subject: email.subject,
+      timestamp: new Date().toISOString()
+    })
+
+    return email
+  })
+
+  emailLayerHooks.hook('send:after', (response, context) => {
+    console.log(`✅ Email sent successfully:`, {
+      id: response.id,
+      provider: context.provider,
+      message: response.message,
+      timestamp: new Date().toISOString()
+    })
+
+    return response
+  })
+})
+```
+
+### Database Logging
+
+Store email history in your database:
+
+```ts [server/plugins/email-database-logging.ts]
+import { emailLayerHooks } from '#layers/email/server/utils/email'
+
+export default defineNitroPlugin(async (nitroApp) => {
+  emailLayerHooks.hook('send:after', async (response, context) => {
+    try {
+      // Store email in database (pseudo-code)
+      await $fetch('/api/internal/email-log', {
+        method: 'POST',
+        body: {
+          emailId: response.id,
+          to: context.email.to,
+          from: context.email.from,
+          subject: context.email.subject,
+          provider: context.provider,
+          sentAt: new Date(),
+          metadata: response.metadata
+        }
+      })
+    } catch (error) {
+      console.error('Failed to log email to database:', error)
+    }
+
+    return response
+  })
+})
+```
+
+### Email Analytics
+
+Track email sending for analytics:
+
+```ts [server/plugins/email-analytics.ts]
+import { emailLayerHooks } from '#layers/email/server/utils/email'
+
+export default defineNitroPlugin(async (nitroApp) => {
+  emailLayerHooks.hook('send:after', async (response, context) => {
+    try {
+      // Send to analytics service
+      await $fetch('https://analytics.example.com/events', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.ANALYTICS_TOKEN}`
+        },
+        body: {
+          event: 'email_sent',
+          properties: {
+            provider: context.provider,
+            email_type: extractEmailType(context.email),
+            recipient_domain: context.email.to.split('@')[1],
+            timestamp: Date.now()
+          }
+        }
+      })
+    } catch (error) {
+      console.error('Failed to send analytics:', error)
+    }
+
+    return response
+  })
+})
+
+function extractEmailType(email: EmailParams): string {
+  // Determine email type based on subject or template
+  if (email.subject.includes('Welcome')) return 'welcome'
+  if (email.subject.includes('Reset')) return 'password_reset'
+  if (email.subject.includes('Verify')) return 'verification'
+  return 'other'
+}
+```
+
+### Content Modification
+
+Modify email content based on business rules:
+
+```ts [server/plugins/email-content-modification.ts]
+import { emailLayerHooks } from '#layers/email/server/utils/email'
+
+export default defineNitroPlugin(async (nitroApp) => {
+  emailLayerHooks.hook('send:before', (email, context) => {
+    // Add disclaimer to all emails
+    if ('body' in email) {
+      email.body += `\n\n---\nThis email was sent by Example Corp. If you received this in error, please ignore it.`
+    }
+
+    // Add tracking parameters to links (for HTML emails)
+    if ('body' in email && email.body.includes('<a')) {
+      email.body = email.body.replace(
+        /href="([^"]+)"/g,
+        `href="$1?utm_source=email&utm_provider=${context.provider}"`
+      )
+    }
+
+    return email
+  })
+})
+```
+
+### Provider-Specific Logic
+
+Apply different logic based on the email provider:
+
+```ts [server/plugins/provider-specific-hooks.ts]
+import { emailLayerHooks } from '#layers/email/server/utils/email'
+
+export default defineNitroPlugin(async (nitroApp) => {
+  emailLayerHooks.hook('send:before', (email, context) => {
+    if (context.provider === 'mailgun') {
+      // Add Mailgun-specific tags or headers
+      console.log('Preparing email for Mailgun delivery')
+
+      // You could modify headers or add tracking here
+
+    } else if (context.provider === 'mailcatcher') {
+      // Add development indicators
+      if ('body' in email) {
+        email.body = `<div style="background: yellow; padding: 10px; margin-bottom: 20px;"><strong>DEV MODE:</strong> This email was caught by MailCatcher</div>${email.body}`
+      }
+
+      // Modify subject for development
+      email.subject = `[DEV] ${email.subject}`
+    }
+
+    return email
+  })
+})
+```
+
+### Rate Limiting
+
+Implement email rate limiting:
+
+```ts [server/plugins/email-rate-limiting.ts]
+import { emailLayerHooks } from '#layers/email/server/utils/email'
+
+const emailCounts = new Map<string, { count: number; resetAt: number }>()
+const RATE_LIMIT = 10 // emails per hour
+const WINDOW = 60 * 60 * 1000 // 1 hour in milliseconds
+
+export default defineNitroPlugin(async (nitroApp) => {
+  emailLayerHooks.hook('send:before', (email, context) => {
+    const now = Date.now()
+    const key = email.to
+
+    // Get current count for this recipient
+    let userData = emailCounts.get(key)
+
+    // Reset if window has passed
+    if (!userData || now > userData.resetAt) {
+      userData = { count: 0, resetAt: now + WINDOW }
+      emailCounts.set(key, userData)
+    }
+
+    // Check rate limit
+    if (userData.count >= RATE_LIMIT) {
+      throw new Error(`Rate limit exceeded for ${email.to}. Try again later.`)
+    }
+
+    // Increment count
+    userData.count++
+
+    return email
+  })
+})
+```
+
+### Email Templates Hook
+
+Intercept template-based emails for additional processing:
+
+```ts [server/plugins/template-hooks.ts]
+import { emailLayerHooks } from '#layers/email/server/utils/email'
+
+export default defineNitroPlugin(async (nitroApp) => {
+  emailLayerHooks.hook('send:before', (email, context) => {
+    // Only process template-based emails
+    if ('template' in email) {
+      console.log('Processing template email:', email.template)
+
+      // You could modify template data here
+      // Note: At this point, templates are already rendered to HTML
+      // But you can still modify the final body content
+    }
+
+    return email
+  })
+})
+```
+
+## Advanced Hook Patterns
+
+### Conditional Hooks
+
+Apply hooks only under certain conditions:
+
+```ts [server/plugins/conditional-hooks.ts]
+import { emailLayerHooks } from '#layers/email/server/utils/email'
+
+export default defineNitroPlugin(async (nitroApp) => {
+  emailLayerHooks.hook('send:before', (email, context) => {
+    // Only modify production emails
+    if (process.env.NODE_ENV === 'production') {
+      // Add production-specific modifications
+      email.subject = `[PROD] ${email.subject}`
+    }
+
+    // Only log sensitive emails
+    if (email.subject.includes('Password') || email.subject.includes('Security')) {
+      console.log('🔒 Sending sensitive email to:', email.to)
+    }
+
+    return email
+  })
+})
+```
+
+### Multiple Hooks
+
+Register multiple hooks for different purposes:
+
+```ts [server/plugins/multiple-hooks.ts]
+import { emailLayerHooks } from '#layers/email/server/utils/email'
+
+export default defineNitroPlugin(async (nitroApp) => {
+  // Hook 1: Logging
+  emailLayerHooks.hook('send:before', (email, context) => {
+    console.log(`📧 Sending: ${email.subject}`)
+    return email
+  })
+
+  // Hook 2: Content modification
+  emailLayerHooks.hook('send:before', (email, context) => {
+    if ('body' in email) {
+      email.body = email.body.replace(/\[USER\]/g, email.to.split('@')[0])
+    }
+    return email
+  })
+
+  // Hook 3: Validation
+  emailLayerHooks.hook('send:before', (email, context) => {
+    if (!email.to.includes('@')) {
+      throw new Error('Invalid email address')
+    }
+    return email
+  })
+})
+```
+
+### Error Handling in Hooks
+
+Handle errors gracefully in your hooks:
+
+```ts [server/plugins/error-handling-hooks.ts]
+import { emailLayerHooks } from '#layers/email/server/utils/email'
+
+export default defineNitroPlugin(async (nitroApp) => {
+  emailLayerHooks.hook('send:after', async (response, context) => {
+    try {
+      // Attempt to log to external service
+      await logToExternalService(response, context)
+    } catch (error) {
+      // Don't let logging errors prevent email sending
+      console.error('Failed to log email externally:', error)
+
+      // Could implement fallback logging here
+      console.log('Fallback log:', {
+        id: response.id,
+        provider: context.provider,
+        error: error.message
+      })
+    }
+
+    return response
+  })
+})
+
+async function logToExternalService(response: any, context: any) {
+  // External logging implementation
+  await $fetch('https://external-logs.example.com/emails', {
+    method: 'POST',
+    body: { response, context }
+  })
+}
+```
+
+## Best Practices
+
+### Hook Performance
+- Keep hook functions lightweight and fast
+- Use async operations carefully to avoid blocking email sending
+- Implement proper error handling to prevent hook failures from affecting email delivery
+
+### Hook Organization
+- Create separate plugin files for different hook purposes
+- Use descriptive names for your hook functions
+- Document complex hook logic
+
+### Testing Hooks
+- Test your hooks thoroughly with different email types
+- Use the MailCatcher provider for testing hook behavior
+- Verify that hooks don't break email functionality
+
+## Next Steps
+
+- [Learn about email providers](/guides/providers) to understand provider-specific contexts
+- [Explore the devtools](/guides/devtools) for testing hook behavior
+- [Check the API reference](/api/hooks) for complete hook documentation
