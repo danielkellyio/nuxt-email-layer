@@ -18,10 +18,7 @@ class MailCatcherProvider extends BaseProvider {
         message:
           "Email saved to mailcatcher storage for review in the devtools",
         metadata: {},
-        sentData: {
-          ...email,
-          from: this.defaultFrom || email.from || "",
-        },
+        sentData: email,
       };
     } catch (error) {
       console.error("Mailcatcher send error:", error);

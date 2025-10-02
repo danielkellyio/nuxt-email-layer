@@ -1,7 +1,7 @@
 {
   "name": "nuxt-email-layer",
   "type": "module",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "main": "./nuxt.config.ts",
   "scripts": {
     "prepare": "nuxt prepare",
