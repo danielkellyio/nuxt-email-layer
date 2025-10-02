@@ -3,10 +3,11 @@ import type {
   EmailParamsWithBody,
   EmailRepsonse,
   EmailProviders,
+  EmailProvider,
 } from "../types";
 import { emailLayerHooks, renderTemplate } from "../../../utils/email";
 
-export abstract class BaseProvider {
+export abstract class BaseProvider implements EmailProvider {
   constructor() {
     const config = useRuntimeConfig();
     this.defaultFrom = config?.email?.defaultFrom || undefined;
