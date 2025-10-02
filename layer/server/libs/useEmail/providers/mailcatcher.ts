@@ -1,5 +1,5 @@
 import type {
-  EmailParams,
+  EmailParamsWithBody,
   EmailRepsonse,
   EmailProviderFactory,
 } from "../types";
@@ -8,13 +8,7 @@ import { BaseProvider } from "./base";
 
 class MailCatcherProvider extends BaseProvider {
   name = "mailcatcher" as const;
-  async commitSend(email: EmailParams): Promise<EmailRepsonse> {
-    if (!("body" in email)) {
-      throw new Error(
-        "Email body isn't set. Either provide one directly or use a template"
-      );
-    }
-
+  async commitSend(email: EmailParamsWithBody): Promise<EmailRepsonse> {
     try {
       const storage = this.useStorage();
       const id = nanoid(24);
