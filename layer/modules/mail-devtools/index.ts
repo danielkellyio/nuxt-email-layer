@@ -1,15 +1,10 @@
-import { defineNuxtModule, addPlugin, createResolver } from "@nuxt/kit";
+import { defineNuxtModule, createResolver } from "@nuxt/kit";
 import { setupDevToolsUI } from "./devtools";
 
 // Module options TypeScript interface definition
-export interface ModuleOptions {
-  /**
-   * Enable Nuxt Devtools integration
-   *
-   * @default true
-   */
-  devtools: boolean;
-}
+// disable eslint rule for empty object type for now in case we need to add options later
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface ModuleOptions {}
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
@@ -17,19 +12,11 @@ export default defineNuxtModule<ModuleOptions>({
     configKey: "emailDevtools",
   },
   // Default configuration options of the Nuxt module
-  defaults: {
-    devtools: true,
-  },
+  defaults: {},
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url);
 
-    // Add route rule for the email devtools
-    // Prevent the devtools from being rendered on the server
-    nuxt.options.routeRules = nuxt.options.routeRules || {};
-    nuxt.options.routeRules["/__email-devtools"] = {
-      ssr: false,
-    };
-
-    if (options.devtools) setupDevToolsUI(nuxt, resolver);
+    if (nuxt.options.devtools.enabled && process.env.NODE_ENV === "development")
+      setupDevToolsUI(nuxt, resolver);
   },
 });

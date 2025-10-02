@@ -31,5 +31,5 @@ export default defineNuxtConfig({
       },
     },
   },
-  modules: ["@nuxt/eslint", "@nuxt/devtools-ui-kit"],
+  modules: ["@nuxt/eslint"],
 });

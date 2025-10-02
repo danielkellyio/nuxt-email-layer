@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 
-definePageMeta({
-  layout: "email-devtools",
-});
-
 interface Email {
   id: string;
   to: string;
@@ -83,11 +79,6 @@ function selectEmail(email: Email) {
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleString();
-}
-
-function truncateText(text: string, maxLength: number = 50) {
-  if (!text) return "";
-  return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
 }
 
 onMounted(() => {
