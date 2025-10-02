@@ -2,12 +2,11 @@ import type {
   EmailParams,
   EmailParamsWithBody,
   EmailRepsonse,
-  EmailProvider,
   EmailProviders,
 } from "../types";
 import { emailLayerHooks, renderTemplate } from "../../../utils/email";
 
-export abstract class BaseProvider implements EmailProvider {
+export abstract class BaseProvider {
   constructor() {
     const config = useRuntimeConfig();
     this.defaultFrom = config?.email?.defaultFrom || undefined;
@@ -15,9 +14,9 @@ export abstract class BaseProvider implements EmailProvider {
   defaultFrom?: string;
   abstract name: EmailProviders;
   async send(email: EmailParams): Promise<EmailRepsonse> {
-    // Render template if provided
-    let processedEmail: EmailParams;
+    let processedEmail: EmailParamsWithBody;
 
+    // Render template if provided
     if ("template" in email) {
       // Render the template with data
       const renderedBody = await renderTemplate(
