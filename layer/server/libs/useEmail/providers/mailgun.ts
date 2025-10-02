@@ -1,5 +1,5 @@
 import type {
-  EmailParams,
+  EmailParamsWithBody,
   EmailProviderFactory,
   EmailRepsonse,
 } from "../types";
@@ -22,17 +22,7 @@ class MailGunProvider extends BaseProvider {
     this.domain = config?.email?.mailgun?.domain;
   }
 
-  async commitSend(email: EmailParams): Promise<EmailRepsonse> {
-    const emailWithDefaults = {
-      ...email,
-      from: (this.defaultFrom || email.from || "") as string,
-    };
-
-    if (!("body" in emailWithDefaults)) {
-      throw new Error(
-        "Email body isn't set. Either provide one directly or use a template"
-      );
-    }
+  async commitSend(email: EmailParamsWithBody): Promise<EmailRepsonse> {
     try {
       const mailgun = new Mailgun(formData);
       const mg = mailgun.client({
@@ -40,20 +30,27 @@ class MailGunProvider extends BaseProvider {
         key: this.apiKey,
       });
 
-      const messageData = {
+      const mailgunFormattedMessage = {
         from: email.from,
         to: email.to,
         subject: email.subject,
-        text: emailWithDefaults.body,
+        text: email.body,
       };
 
-      const response = await mg.messages.create(this.domain, messageData);
+      const response = await mg.messages.create(
+        this.domain,
+        mailgunFormattedMessage
+      );
+
+      if (!response.id) {
+        throw new Error("Mailgun response id is missing");
+      }
 
       return {
-        id: response.id || `mailgun-${Date.now()}`,
+        id: response.id,
         message: "Email sent successfully via Mailgun",
         metadata: response,
-        sentData: emailWithDefaults,
+        sentData: email,
       };
     } catch (error) {
       console.error("Mailgun send error:", error);

@@ -1,5 +1,6 @@
 import type {
   EmailParams,
+  EmailParamsWithBody,
   EmailRepsonse,
   EmailProvider,
   EmailProviders,
@@ -24,7 +25,6 @@ export abstract class BaseProvider implements EmailProvider {
         email.data || {}
       );
       processedEmail = {
-        from: email.from,
         to: email.to,
         subject: email.subject,
         body: renderedBody,
@@ -33,7 +33,10 @@ export abstract class BaseProvider implements EmailProvider {
       processedEmail = email;
     }
 
-    const emailAfterHook: EmailParams = await emailLayerHooks.callHook(
+    // set the from address with the default from as a fallback
+    processedEmail.from = email.from || this.defaultFrom;
+
+    const emailAfterHook: EmailParamsWithBody = await emailLayerHooks.callHook(
       "send:before",
       processedEmail,
       {
@@ -51,5 +54,5 @@ export abstract class BaseProvider implements EmailProvider {
 
     return responseAfterHook;
   }
-  abstract commitSend(email: EmailParams): Promise<EmailRepsonse>;
+  abstract commitSend(email: EmailParamsWithBody): Promise<EmailRepsonse>;
 }

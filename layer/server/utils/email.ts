@@ -1,6 +1,6 @@
 import type { Component } from "vue";
 import type {
-  EmailParams,
+  EmailParamsWithBody,
   EmailRepsonse,
   EmailProviders,
 } from "../libs/useEmail/types";
@@ -11,12 +11,12 @@ export { useEmail } from "../libs/useEmail";
 // Hooks to Expose from the Library
 export const emailLayerHooks = createHooks<{
   "send:before": (
-    payload: EmailParams,
+    payload: EmailParamsWithBody,
     context: { provider: EmailProviders }
-  ) => EmailParams;
+  ) => EmailParamsWithBody;
   "send:after": (
     payload: EmailRepsonse,
-    context: { provider: EmailProviders; email: EmailParams }
+    context: { provider: EmailProviders; email: EmailParamsWithBody }
   ) => EmailRepsonse;
 }>();
 
