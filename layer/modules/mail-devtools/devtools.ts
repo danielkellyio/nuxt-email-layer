@@ -63,7 +63,7 @@ function startDevtoolsServer(nuxt: Nuxt, resolver: Resolver) {
   }
 
   // If server is already listening start immediately
-  if (mainServerPort) startDevtoolsProcess();
+  if (mainServerPort && !devtoolsProcess) startDevtoolsProcess();
 
   function killDevtoolsProcess() {
     if (devtoolsProcess && !devtoolsProcess.killed) {
