@@ -429,4 +429,4 @@ async function logToExternalService(response: any, context: any) {
 
 - [Learn about email providers](/guides/providers) to understand provider-specific contexts
 - [Explore the devtools](/guides/devtools) for testing hook behavior
-- [Check the API reference](/api/hooks) for complete hook documentation
+- [Check the API reference](/api/useemail) for complete useEmail documentation
