@@ -4,6 +4,11 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   extends: ["shadcn-docs-nuxt"],
 
+  // Static site generation
+  nitro: {
+    preset: "static",
+  },
+
   i18n: {
     defaultLocale: "en",
     locales: [

@@ -1,0 +1,19 @@
+[build]
+  base = "docs"
+  command = "pnpm generate"
+  publish = "docs/.output/public"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Headers for better caching
+[[headers]]
+  for = "/_nuxt/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
