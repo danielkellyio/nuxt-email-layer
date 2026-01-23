@@ -4,8 +4,6 @@ description: Learn how to send emails using the useEmail composable with differe
 icon: lucide:send
 ---
 
-# Sending Emails
-
 The `useEmail()` composable is the main interface for sending emails in your Nuxt application. It provides a simple, consistent API regardless of which email provider you're using.
 
 ## Basic Usage

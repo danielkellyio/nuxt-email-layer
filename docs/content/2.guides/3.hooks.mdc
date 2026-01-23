@@ -4,8 +4,6 @@ description: Use the powerful hooks system to intercept, modify, and extend emai
 icon: lucide:git-branch
 ---
 
-# Hooks & Customization
-
 The Nuxt Email Layer includes a powerful hooks system that allows you to intercept and modify emails before and after they're sent. This enables advanced customization, logging, analytics, and custom business logic.
 
 ## Overview

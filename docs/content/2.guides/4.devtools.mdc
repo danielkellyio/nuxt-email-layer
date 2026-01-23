@@ -4,8 +4,6 @@ description: Use the integrated email devtools for testing, debugging, and previ
 icon: lucide:wrench
 ---
 
-# Development Tools
-
 The Nuxt Email Layer includes powerful development tools that make it easy to test, debug, and preview emails during development. The devtools provide a complete email testing environment without needing external email services.
 
 ## Overview

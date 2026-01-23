@@ -4,10 +4,6 @@ description: Learn how to install and configure the Nuxt Email Layer in your pro
 icon: lucide:download
 ---
 
-# Installation & Configuration
-
-Get started with the Nuxt Email Layer by installing the package and configuring your preferred email provider.
-
 ## Installation
 
 Install the email layer as a dependency in your Nuxt project:
@@ -149,6 +145,8 @@ When running in development mode, visit:
 http://localhost:3000/__email-devtools
 ```
 
+Or use the Emails tab in the Nuxt Devtools.
+
 The devtools provide:
 - 📧 Email inbox for reviewing caught emails
 - 🧪 Test email sending functionality
@@ -186,20 +184,23 @@ export default defineNuxtConfig({
   extends: ['nuxt-email-layer'],
 
   runtimeConfig: {
-    email: {
-      // Use MailCatcher in development, Mailgun in production
-      provider: process.env.NODE_ENV === 'production' ? 'mailgun' : 'mailcatcher',
-      defaultFrom: process.env.NODE_ENV === 'production'
-        ? 'noreply@yourdomain.com'
-        : 'hello@localhost.dev',
-
-      mailcatcher: {
-        storageKey: 'mailcatcher'
-      },
-
-      mailgun: {
-        apiKey: process.env.MAILGUN_API_KEY,
-        domain: process.env.MAILGUN_DOMAIN
+    $production:{
+      email: {
+        provider: 'mailgun',
+        defaultFrom: 'noreply@yourdomain.com',
+        mailgun: {
+          apiKey: "default-api-key", //  .env NUXT_EMAIL_MAILGUN_API_KEY
+          domain: "default-domain" // .env NUXT_EMAIL_MAILGUN_DOMAIN
+        }
+      }
+    }
+    $development:{
+      email: {
+        provider: 'mailcatcher',
+        defaultFrom: 'hello@localhost.dev',
+        mailcatcher: {
+          storageKey: 'mailcatcher'
+        }
       }
     }
   }

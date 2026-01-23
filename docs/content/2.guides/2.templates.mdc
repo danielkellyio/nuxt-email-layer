@@ -4,8 +4,6 @@ description: Create beautiful, maintainable email templates using Vue components
 icon: lucide:layout-template
 ---
 
-# Email Templates
-
 The Nuxt Email Layer includes powerful templating capabilities using Vue components and the Vue Email library. Create beautiful, responsive, and maintainable email templates with full TypeScript support.
 
 ## Overview

@@ -1,10 +1,8 @@
 ---
-title: Introduction
+title: Nuxt Email Layer Introduction
 description: A complete email solution for Nuxt applications with Vue templates, multiple providers, devtools integration, and extensible hooks system.
 icon: lucide:mail
 ---
-
-# Nuxt Email Layer
 
 The **Nuxt Email Layer** is a comprehensive email solution that brings powerful email functionality to your Nuxt applications. It provides everything you need to send beautiful, template-driven emails with multiple provider support, development tools, and an extensible architecture.
 

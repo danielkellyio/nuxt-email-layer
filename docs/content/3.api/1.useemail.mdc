@@ -4,8 +4,6 @@ description: API reference for the useEmail composable, the main interface for s
 icon: lucide:code
 ---
 
-# useEmail()
-
 The `useEmail()` composable is the primary interface for sending emails in your Nuxt application. It automatically selects the configured email provider and provides a consistent API.
 
 ## Syntax

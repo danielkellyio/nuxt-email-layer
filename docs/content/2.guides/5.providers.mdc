@@ -4,8 +4,6 @@ description: Configure and extend email providers including Mailgun, MailCatcher
 icon: lucide:mail-plus
 ---
 
-# Email Providers
-
 The Nuxt Email Layer supports multiple email providers out of the box and provides an extensible system for adding custom providers. Choose the right provider for your development and production needs.
 
 ## Built-in Providers

@@ -1,0 +1,226 @@
+## Installation
+
+Install the email layer as a dependency in your Nuxt project:
+
+```bash [npm]
+npm install nuxt-email-layer
+```
+
+## Basic Setup
+
+Add the email layer to your Nuxt configuration:
+
+```ts [nuxt.config.ts]
+export default defineNuxtConfig({
+  extends: ['nuxt-email-layer'],
+  // Your other config...
+})
+```
+
+That's it! The layer will work out of the box with the default MailCatcher provider for development.
+
+## Runtime Configuration
+
+Configure email providers and settings using Nuxt's runtime configuration:
+
+```ts [nuxt.config.ts]
+export default defineNuxtConfig({
+  extends: ['nuxt-email-layer'],
+
+  runtimeConfig: {
+    email: {
+      provider: 'mailcatcher', // or 'mailgun'
+      defaultFrom: 'hello@yourapp.com',
+
+      // MailCatcher settings (development)
+      mailcatcher: {
+        storageKey: 'mailcatcher'
+      },
+
+      // Mailgun settings (production)
+      mailgun: {
+        apiKey: "",
+        domain: "",
+      }
+    }
+  }
+})
+```
+
+### Environment Variables
+
+For production usage with Mailgun, set these environment variables:
+
+```bash [.env]
+# Mailgun Configuration
+NUXT_EMAIL_PROVIDER=mailgun
+NUXT_EMAIL_DEFAULT_FROM=noreply@yourdomain.com
+NUXT_EMAIL_MAILGUN_API_KEY=key-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+NUXT_EMAIL_MAILGUN_DOMAIN=mg.yourdomain.com
+```
+
+### Accessing the Email Devtools
+
+When running in development mode, visit:
+```
+http://localhost:3000/__email-devtools
+```
+
+## Configuration Options
+
+### Core Settings
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `provider` | `string` | `'mailcatcher'` | Email provider to use |
+| `defaultFrom` | `string` | `'hello@world.com'` | Default sender email address |
+
+### MailCatcher Settings
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `storageKey` | `string` | `'mailcatcher'` | Storage key for caught emails |
+
+### Mailgun Settings
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `apiKey` | `string` | `''` | Mailgun API key |
+| `domain` | `string` | `''` | Mailgun domain |
+
+## Environment-Specific Configuration
+
+Configure different providers for different environments:
+
+```ts [nuxt.config.ts]
+export default defineNuxtConfig({
+  extends: ['nuxt-email-layer'],
+
+  runtimeConfig: {
+    $production:{
+      email: {
+        provider: 'mailgun',
+        defaultFrom: 'noreply@yourdomain.com',
+        mailgun: {
+          apiKey: "default-api-key", //  .env NUXT_EMAIL_MAILGUN_API_KEY
+          domain: "default-domain" // .env NUXT_EMAIL_MAILGUN_DOMAIN
+        }
+      }
+    }
+    $development:{
+      email: {
+        provider: 'mailcatcher',
+        defaultFrom: 'hello@localhost.dev',
+        mailcatcher: {
+          storageKey: 'mailcatcher'
+        }
+      }
+    }
+  }
+})
+```
+
+## How to Use the Emails
+
+use the `useEmail()` function on the server to send emails.
+
+With raw text or HTML body:
+
+```ts [server/api/test-email.ts]
+export default defineEventHandler(async (event) => {
+  const email = useEmail()
+
+  try {
+    const result = await email.send({
+      to: 'test@example.com',
+      subject: 'Test Email',
+      body: 'Hello from Nuxt Email Layer! Raw text or HTML'
+    })
+
+    return { success: true, result }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+```
+
+With template-based email:
+
+```ts [server/api/test-email.ts]
+With template-based email:
+
+```ts [server/api/test-email.ts]
+import WelcomeEmail from '#layers/email/server/emails/welcome.vue'
+
+export default defineEventHandler(async (event) => {
+  const email = useEmail()
+
+  const result = await email.send({
+    to: 'user@example.com',
+    subject: 'Welcome to Our Platform!',
+    template: WelcomeEmail,
+    data: {
+      userName: 'John Doe',
+      actionUrl: 'https://app.example.com/dashboard'
+    }
+  })
+
+  return result
+})
+```
+
+Creating a template (uses Vue Email library components):
+
+```vue [server/emails/welcome.vue]
+<script setup lang="ts">
+import {
+  Html,
+  Head,
+  Preview,
+  Container,
+  Section,
+  Heading,
+  Text,
+  Button,
+  Link
+} from '@vue-email/components'
+
+// Define props with TypeScript
+defineProps({
+  userName: {
+    type: String,
+    required: true
+  },
+  actionUrl: {
+    type: String,
+    required: true
+  }
+})
+</script>
+
+<template>
+  <Html lang="en">
+    <Head />
+    <Preview>Welcome to our platform, {{ userName }}!</Preview>
+
+    <Container style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+      <Section style="padding: 20px;">
+        <Heading style="color: #333; font-size: 24px;">
+          Hello {{ userName }}!
+        </Heading>
+
+        <Text style="color: #666; line-height: 1.6;">
+          Welcome to our platform. We're excited to have you on board!
+        </Text>
+
+        <Button
+          :href="actionUrl"
+          style="background: #007bff; color: white; padding: 12px 24px; border-radius: 4px; text-decoration: none;"
+        >
+          Get Started
+        </Button>
+      </Section>
+    </Container>
+  </Html>
+</template>
+```
