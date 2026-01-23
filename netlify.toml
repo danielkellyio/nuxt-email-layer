@@ -1,7 +1,7 @@
 [build]
   base = "docs"
   command = "pnpm generate"
-  publish = "docs/.output/public"
+  publish = ".output/public"
 
 [build.environment]
   NODE_VERSION = "20"
