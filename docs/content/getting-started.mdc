@@ -1,0 +1,7 @@
+---
+title: Getting Started
+description: Get started with Nuxt Email Layer by installing the package and configuring your preferred email provider.
+---
+
+- [Introduction](/getting-started/introduction)
+- [Installation & Configuration](/getting-started/installation)
