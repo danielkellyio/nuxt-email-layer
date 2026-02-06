@@ -3,5 +3,6 @@ export default defineEventHandler(async (event) => {
     to: "me@danielkelly.io",
     subject: "Test",
     body: "<p>Test</p>",
+    text: "test",
   });
 });

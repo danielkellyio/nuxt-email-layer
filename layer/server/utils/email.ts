@@ -12,26 +12,49 @@ export { useEmail } from "../libs/useEmail";
 export const emailLayerHooks = createHooks<{
   "send:before": (
     payload: EmailParamsWithBody,
-    context: { provider: EmailProviders }
+    context: { provider: EmailProviders },
   ) => EmailParamsWithBody;
   "send:after": (
     payload: EmailRepsonse,
-    context: { provider: EmailProviders; email: EmailParamsWithBody }
+    context: { provider: EmailProviders; email: EmailParamsWithBody },
   ) => EmailRepsonse;
 }>();
 
 // Template rendering function
 export async function renderTemplate(
   template: Component,
-  data: Record<string, unknown> = {}
+  data: Record<string, unknown> = {},
 ): Promise<string> {
   try {
     // Render the Vue email template
     const html = await render(
       template,
-      Object.keys(data).length > 0 ? data : undefined
+      Object.keys(data).length > 0 ? data : undefined,
     );
     return html;
+  } catch (error) {
+    console.error(`Error rendering email template:`, error);
+    throw new Error(`Failed to render email template`, {
+      cause: error,
+    });
+  }
+}
+
+// Render template to plain text
+export async function renderTemplateToPlainText(
+  template: Component,
+  data: Record<string, unknown> = {},
+): Promise<string> {
+  try {
+    // Render the Vue email template
+    const text = await render(
+      template,
+      Object.keys(data).length > 0 ? data : undefined,
+      {
+        plainText: true,
+      },
+    );
+    return text;
   } catch (error) {
     console.error(`Error rendering email template:`, error);
     throw new Error(`Failed to render email template`, {

@@ -16,7 +16,7 @@ describe("mailgun provider", () => {
     expect(config.email?.mailgun?.domain).toBe("");
 
     expect(() => useMailGun()).toThrow(
-      "Mailgun API key and domain are required"
+      "Mailgun API key and domain are required",
     );
   });
 });
@@ -28,6 +28,7 @@ describe("mailcatcher provider", () => {
       to: "test@test.com",
       subject: "test",
       body: "test",
+      text: "test",
     });
 
     const storage = useStorage("mailcatcher");

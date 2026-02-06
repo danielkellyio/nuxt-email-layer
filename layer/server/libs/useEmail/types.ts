@@ -15,6 +15,7 @@ export type EmailParamsWithTemplate = {
 
 export type EmailParamsWithBody = {
   body: string;
+  text: string;
 } & BaseEmailParams;
 
 export type EmailParams = EmailParamsWithBody | EmailParamsWithTemplate;

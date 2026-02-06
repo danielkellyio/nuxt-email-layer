@@ -14,6 +14,7 @@ describe("useEmail", () => {
       to: "test@test.com",
       subject: "test",
       body: "test",
+      text: "test",
     });
 
     expect(res.sentData.from).toBe("default@test.com");
@@ -55,5 +56,18 @@ describe("useEmail", () => {
 
     expect(res.sentData.body).toContain("some title");
     expect(res.sentData.body).toContain(`<html lang="en"`);
+  });
+
+  test("useEmail().send() takes a template and data and renders to plain text", async () => {
+    const provider = useEmail();
+    const res = await provider.send({
+      to: "test@test.com",
+      subject: "test",
+      template: HelloWorld,
+      data: {
+        title: "some title",
+      },
+    });
+    expect(res.sentData.text).toContain("some title");
   });
 });

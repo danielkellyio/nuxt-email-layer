@@ -35,11 +35,12 @@ class MailGunProvider extends BaseProvider {
         to: email.to,
         subject: email.subject,
         text: email.body,
+        html: email.body,
       };
 
       const response = await mg.messages.create(
         this.domain,
-        mailgunFormattedMessage
+        mailgunFormattedMessage,
       );
 
       if (!response.id) {

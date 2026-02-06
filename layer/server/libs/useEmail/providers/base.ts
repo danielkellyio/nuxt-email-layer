@@ -5,7 +5,11 @@ import type {
   EmailProviders,
   EmailProvider,
 } from "../types";
-import { emailLayerHooks, renderTemplate } from "../../../utils/email";
+import {
+  emailLayerHooks,
+  renderTemplate,
+  renderTemplateToPlainText,
+} from "../../../utils/email";
 
 export abstract class BaseProvider implements EmailProvider {
   constructor() {
@@ -22,12 +26,19 @@ export abstract class BaseProvider implements EmailProvider {
       // Render the template with data
       const renderedBody = await renderTemplate(
         email.template,
-        email.data || {}
+        email.data || {},
       );
+
+      const renderedText = await renderTemplateToPlainText(
+        email.template,
+        email.data || {},
+      );
+
       processedEmail = {
         to: email.to,
         subject: email.subject,
         body: renderedBody,
+        text: renderedText,
       };
     } else {
       processedEmail = email;
@@ -41,7 +52,7 @@ export abstract class BaseProvider implements EmailProvider {
       processedEmail,
       {
         provider: this.name,
-      }
+      },
     );
 
     const response = await this.commitSend(emailAfterHook);
@@ -49,7 +60,7 @@ export abstract class BaseProvider implements EmailProvider {
     const responseAfterHook = await emailLayerHooks.callHook(
       "send:after",
       response,
-      { provider: this.name, email: emailAfterHook }
+      { provider: this.name, email: emailAfterHook },
     );
 
     return responseAfterHook;
