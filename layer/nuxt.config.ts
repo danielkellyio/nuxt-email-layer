@@ -11,7 +11,7 @@ export default defineNuxtConfig({
       provider: "mailcatcher",
       defaultFrom: "hello@world.com",
       mailcatcher: {
-        storageKey: "mailcatcher",
+        databasePath: "./.data/mailcatcher.db",
       },
       mailgun: {
         apiKey: "",
@@ -23,12 +23,6 @@ export default defineNuxtConfig({
   nitro: {
     rollupConfig: {
       plugins: [vue()],
-    },
-    storage: {
-      mailcatcher: {
-        driver: "fs",
-        base: "./.data/mailcatcher",
-      },
     },
   },
 });

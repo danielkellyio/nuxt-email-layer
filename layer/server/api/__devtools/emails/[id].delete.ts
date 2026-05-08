@@ -1,3 +1,5 @@
+import { deleteCaughtEmailById } from "#layers/email/server/utils/mailcatcher-sqlite";
+
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, "id");
 
@@ -9,22 +11,7 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const config = useRuntimeConfig();
-    const storage = useStorage(
-      config?.email?.mailcatcher?.storageKey || "mailcatcher"
-    );
-
-    // Check if email exists
-    const email = await storage.getItem(id);
-    if (!email) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: "Email not found",
-      });
-    }
-
-    // Delete the email
-    await storage.removeItem(id);
+    deleteCaughtEmailById(id);
 
     return {
       success: true,

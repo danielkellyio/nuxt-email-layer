@@ -13,6 +13,8 @@ describe("email layer", () => {
   test("runtime config for email has expected defaults", () => {
     const config = useRuntimeConfig();
     expect(config.email?.provider).toBe("mailcatcher");
-    expect(config.email?.mailcatcher?.storageKey).toBe("mailcatcher");
+    expect(config.email?.mailcatcher?.databasePath).toBe(
+      "./.data/mailcatcher.db",
+    );
   });
 });

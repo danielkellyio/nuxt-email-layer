@@ -1,4 +1,4 @@
-import { test, expect, describe, vi } from "vitest";
+import { test, expect, describe, vi, beforeEach } from "vitest";
 const { createSpy } = vi.hoisted(() => ({
   createSpy: vi.fn(),
 }));
@@ -21,10 +21,10 @@ import {
   useMailGun,
   useMailCatcher,
 } from "nuxt-email-layer/server/libs/useEmail";
-import type {
-  EmailParams,
-  SentEmailData,
-} from "nuxt-email-layer/server/libs/useEmail";
+import {
+  clearCaughtEmails,
+  getCaughtEmailById,
+} from "nuxt-email-layer/server/utils/mailcatcher-sqlite";
 
 describe("mailgun provider", () => {
   test("mailgun requires NUXT_EMAIL_MAILGUN_API_KEY and NUXT_EMAIL_MAILGUN_DOMAIN to be set", () => {
@@ -77,7 +77,11 @@ describe("mailgun provider", () => {
 });
 
 describe("mailcatcher provider", () => {
-  test("mailcatcher saves email to kv storage", async () => {
+  beforeEach(() => {
+    clearCaughtEmails();
+  });
+
+  test("mailcatcher saves email to sqlite", async () => {
     const res = await useMailCatcher().send({
       from: "test@test.com",
       to: "test@test.com",
@@ -86,8 +90,7 @@ describe("mailcatcher provider", () => {
       text: "test",
     });
 
-    const storage = useStorage("mailcatcher");
-    const storedEmail = await storage.getItem<SentEmailData>(res.id);
+    const storedEmail = getCaughtEmailById(res.id);
 
     expect(storedEmail).toBeDefined();
     expect(storedEmail?.from).toBe("test@test.com");

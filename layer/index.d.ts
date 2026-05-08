@@ -7,7 +7,7 @@ declare module "@nuxt/schema" {
       provider?: EmailProviders;
       defaultFrom?: string;
       mailcatcher?: {
-        storageKey: string;
+        databasePath: string;
       };
       mailgun?: {
         apiKey: string;

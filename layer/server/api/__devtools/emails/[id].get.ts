@@ -1,4 +1,4 @@
-import type { SentEmailData } from "#layers/email/server/libs/useEmail/types";
+import { getCaughtEmailById } from "#layers/email/server/utils/mailcatcher-sqlite";
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, "id");
 
@@ -10,12 +10,7 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const config = useRuntimeConfig();
-    const storage = useStorage(
-      config?.email?.mailcatcher?.storageKey || "mailcatcher"
-    );
-
-    const email = await storage.getItem<SentEmailData>(id);
+    const email = getCaughtEmailById(id);
 
     if (!email) {
       throw createError({
@@ -24,11 +19,7 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    return {
-      id,
-      ...email,
-      timestamp: new Date().toISOString(), // TODO: get actual timestamp from storage metadata
-    };
+    return email;
   } catch (error) {
     // @ts-expect-error - TODO: fix this
     if ("statusCode" in error) {
