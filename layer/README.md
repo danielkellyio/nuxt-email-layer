@@ -1,73 +1,46 @@
-# Nuxt Layer Starter
+# nuxt-email-layer
 
-Create Nuxt extendable layer with this GitHub template.
+Nuxt layer for building and sending emails with Vue Email.
 
-## Setup
+## Documentation
 
-Make sure to install the dependencies:
+- [nuxt-email-layer.netlify.app](https://nuxt-email-layer.netlify.app/)
 
-```bash
-pnpm install
-```
+## Providers:
 
-## Working on your layer
+- MailCatcher (Development)
+- Mailgun (Production)
 
-Your layer is at the root of this repository, it is exactly like a regular Nuxt project, except you can publish it on NPM.
-
-The `.playground` directory should help you on trying your layer during development.
-
-Running `pnpm dev` will prepare and boot `.playground` directory, which imports your layer itself.
-
-## Distributing your layer
-
-Your Nuxt layer is shaped exactly the same as any other Nuxt project, except you can publish it on NPM.
-
-To do so, you only have to check if `files` in `package.json` are valid, then run:
-
-```bash
-npm publish --access public
-```
-
-Once done, your users will only have to run:
-
-```bash
-npm install --save your-layer
-```
-
-Then add the dependency to their `extends` in `nuxt.config`:
+## Simple Example
 
 ```ts
-defineNuxtConfig({
-  extends: 'your-layer'
-})
+// nuxt.config.ts (with config)
+export default defineNuxtConfig({
+  extends: ["nuxt-email-layer"],
+  runtimeConfig: {
+    email: {
+      provider: "mailcatcher",
+      defaultFrom: "hello@localhost.dev",
+      mailgun: {
+        apiKey: "", // NUXT_EMAIL_MAILGUN_API_KEY
+        domain: "", // NUXT_EMAIL_MAILGUN_DOMAIN
+      },
+    },
+  },
+});
 ```
 
-## Development Server
+```ts [server/api/email-test.post.ts]
+export default defineEventHandler(async (event) => {
+  const email = useEmail();
 
-Start the development server on http://localhost:3000
-
-```bash
-pnpm dev
+  const result = await email.send({
+    to: "user@example.com",
+    subject: "Hello",
+    body: "<html><body><h1>Test email from Nuxt Email Layer.</h1></body></html>",
+    text: "Test email from Nuxt Email Layer.",
+  });
+});
 ```
 
-## Production
-
-Build the application for production:
-
-```bash
-pnpm build
-```
-
-Or statically generate it with:
-
-```bash
-pnpm generate
-```
-
-Locally preview production build:
-
-```bash
-pnpm preview
-```
-
-Checkout the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+See the [docs](https://nuxt-email-layer.netlify.app/) for more information.
