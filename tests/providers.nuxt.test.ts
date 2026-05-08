@@ -1,4 +1,22 @@
-import { test, expect, describe } from "vitest";
+import { test, expect, describe, vi } from "vitest";
+const { createSpy } = vi.hoisted(() => ({
+  createSpy: vi.fn(),
+}));
+
+vi.mock("mailgun.js", () => {
+  const MailgunMock = vi.fn().mockImplementation(() => ({
+    client: vi.fn(() => ({
+      messages: {
+        create: createSpy,
+      },
+    })),
+  }));
+
+  return {
+    default: MailgunMock,
+  };
+});
+
 import {
   useMailGun,
   useMailCatcher,
@@ -17,6 +35,43 @@ describe("mailgun provider", () => {
 
     expect(() => useMailGun()).toThrow(
       "Mailgun API key and domain are required",
+    );
+  });
+
+  test("useMailGun().send() calls Mailgun SDK messages.create", async () => {
+    const config = useRuntimeConfig();
+    config.email = {
+      ...config.email,
+      mailgun: {
+        apiKey: "test-api-key",
+        domain: "sandbox.example.mailgun.org",
+      },
+    };
+
+    createSpy.mockReset();
+    createSpy.mockResolvedValue({
+      id: "<message-id@example.mailgun.org>",
+      status: 200,
+    });
+
+    await useMailGun().send({
+      from: "sender@test.com",
+      to: "recipient@test.com",
+      subject: "Test Subject",
+      body: "<p>Test Body</p>",
+      text: "Test Body",
+    });
+
+    expect(createSpy).toHaveBeenCalledTimes(1);
+    expect(createSpy).toHaveBeenCalledWith(
+      "sandbox.example.mailgun.org",
+      expect.objectContaining({
+        from: "sender@test.com",
+        to: "recipient@test.com",
+        subject: "Test Subject",
+        text: "<p>Test Body</p>",
+        html: "<p>Test Body</p>",
+      }),
     );
   });
 });
