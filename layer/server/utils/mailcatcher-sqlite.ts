@@ -120,6 +120,41 @@ export function listCaughtEmails(): MailCatcherEmail[] {
   return rows.map(rowToEmail);
 }
 
+export function searchCaughtEmails(rawSearch: string): MailCatcherEmail[] {
+  const search = rawSearch.trim();
+  if (!search) {
+    return listCaughtEmails();
+  }
+
+  const db = getDatabase();
+  const likeSearch = `%${search.toLowerCase()}%`;
+  const rows = db
+    .prepare(
+      `
+        SELECT id, from_email, to_email, subject, body, text_body, created_at
+        FROM caught_emails
+        WHERE
+          lower(to_email) LIKE ?
+          OR lower(COALESCE(from_email, '')) LIKE ?
+          OR lower(subject) LIKE ?
+          OR lower(body) LIKE ?
+          OR lower(text_body) LIKE ?
+          OR lower(created_at) LIKE ?
+        ORDER BY datetime(created_at) DESC, id DESC
+      `,
+    )
+    .all(
+      likeSearch,
+      likeSearch,
+      likeSearch,
+      likeSearch,
+      likeSearch,
+      likeSearch,
+    ) as MailCatcherEmailRow[];
+
+  return rows.map(rowToEmail);
+}
+
 export function deleteCaughtEmailById(id: string) {
   const db = getDatabase();
   const result = db.prepare(`DELETE FROM caught_emails WHERE id = ?`).run(id);

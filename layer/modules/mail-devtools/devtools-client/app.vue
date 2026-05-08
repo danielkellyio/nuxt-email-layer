@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { onMounted, ref, watch } from "vue";
 
 interface Email {
   id: string;
@@ -15,11 +15,14 @@ const selectedEmail = ref<Email | null>(null);
 const loading = ref(false);
 const refreshing = ref(false);
 const sendingTest = ref(false);
+const searchQuery = ref("");
 
-async function fetchEmails() {
+async function fetchEmails(search = searchQuery.value.trim()) {
   try {
     loading.value = true;
-    const response = (await $fetch("/api/__devtools/emails")) as {
+    const response = (await $fetch("/api/__devtools/emails", {
+      query: search ? { search } : undefined,
+    })) as {
       emails: Email[];
     };
     emails.value = response.emails || [];
@@ -83,6 +86,26 @@ function formatDate(dateString: string) {
 
 onMounted(() => {
   fetchEmails();
+});
+
+watch(emails, (nextEmails) => {
+  if (
+    selectedEmail.value &&
+    !nextEmails.some((email) => email.id === selectedEmail.value?.id)
+  ) {
+    selectedEmail.value = null;
+  }
+});
+
+let searchDebounceTimeout: ReturnType<typeof setTimeout> | null = null;
+watch(searchQuery, (nextSearch) => {
+  if (searchDebounceTimeout) {
+    clearTimeout(searchDebounceTimeout);
+  }
+
+  searchDebounceTimeout = setTimeout(() => {
+    fetchEmails(nextSearch);
+  }, 250);
 });
 </script>
 
@@ -162,12 +185,24 @@ onMounted(() => {
       <div
         class="overflow-y-auto w-1/4 bg-white border-r dark:bg-[#161616] dark:border-[#2f2f30]"
       >
+        <div class="p-3 border-b dark:border-[#2f2f30]">
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search emails..."
+            class="px-3 py-2 w-full text-sm rounded border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none dark:bg-[#1f1f1f] dark:border-[#3a3a3b] dark:text-gray-200"
+          />
+        </div>
+
         <div v-if="loading" class="p-4 text-center">
           <NLoading />
           <p class="mt-2 text-gray-500 dark:text-gray-400">Loading emails...</p>
         </div>
 
-        <div v-else-if="emails.length === 0" class="p-8 text-center">
+        <div
+          v-else-if="emails.length === 0 && !searchQuery.trim()"
+          class="p-8 text-center"
+        >
           <div class="flex justify-center items-center mb-4 text-6xl">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -189,6 +224,10 @@ onMounted(() => {
           <p class="text-gray-500 dark:text-gray-400">
             Emails sent through mailcatcher will appear here.
           </p>
+        </div>
+
+        <div v-else-if="emails.length === 0" class="p-8 text-center text-gray-500 dark:text-gray-400">
+          No emails match your search.
         </div>
 
         <div v-else class="divide-y dark:divide-[#2f2f30]">

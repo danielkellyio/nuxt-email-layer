@@ -24,6 +24,7 @@ import {
 import {
   clearCaughtEmails,
   getCaughtEmailById,
+  searchCaughtEmails,
 } from "nuxt-email-layer/server/utils/mailcatcher-sqlite";
 
 describe("mailgun provider", () => {
@@ -97,5 +98,31 @@ describe("mailcatcher provider", () => {
     expect(storedEmail?.to).toBe("test@test.com");
     expect(storedEmail?.subject).toBe("test");
     expect(storedEmail?.body).toBe("test");
+  });
+
+  test("searchCaughtEmails matches subject and recipient", async () => {
+    await useMailCatcher().send({
+      from: "noreply@example.com",
+      to: "alice@example.com",
+      subject: "Invoice Ready",
+      body: "<p>Invoice attached</p>",
+      text: "Invoice attached",
+    });
+
+    await useMailCatcher().send({
+      from: "noreply@example.com",
+      to: "bob@example.com",
+      subject: "Welcome",
+      body: "<p>Hello Bob</p>",
+      text: "Hello Bob",
+    });
+
+    const bySubject = searchCaughtEmails("invoice");
+    const byRecipient = searchCaughtEmails("bob@example.com");
+
+    expect(bySubject).toHaveLength(1);
+    expect(bySubject[0]?.subject).toBe("Invoice Ready");
+    expect(byRecipient).toHaveLength(1);
+    expect(byRecipient[0]?.to).toBe("bob@example.com");
   });
 });
