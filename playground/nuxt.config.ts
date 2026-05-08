@@ -2,5 +2,5 @@
 export default defineNuxtConfig({
   extends: "../layer",
   devtools: { enabled: true },
-  modules: ["@nuxt/eslint", "@nuxt/test-utils"],
+  modules: ["@nuxt/eslint"],
 });
