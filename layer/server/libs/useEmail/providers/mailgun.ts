@@ -6,6 +6,7 @@ import type {
 import formData from "form-data";
 import Mailgun from "mailgun.js";
 import { BaseProvider } from "./base";
+import { retryWithBackoff } from "../../../utils/email";
 
 class MailGunProvider extends BaseProvider {
   name = "mailgun" as const;
@@ -38,9 +39,9 @@ class MailGunProvider extends BaseProvider {
         html: email.body,
       };
 
-      const response = await mg.messages.create(
-        this.domain,
-        mailgunFormattedMessage,
+      const response = await retryWithBackoff(
+        async () =>
+          await mg.messages.create(this.domain, mailgunFormattedMessage),
       );
 
       if (!response.id) {
