@@ -1,4 +1,4 @@
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (_event) => {
   return await useEmail().send({
     to: "me@danielkelly.io",
     subject: "Test",
