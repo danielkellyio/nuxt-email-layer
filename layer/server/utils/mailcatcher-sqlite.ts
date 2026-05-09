@@ -2,6 +2,7 @@ import { mkdirSync } from "node:fs";
 import { dirname, isAbsolute, resolve } from "node:path";
 import Database from "better-sqlite3";
 import type { SentEmailData } from "../libs/useEmail/types";
+import { emitMailDevtoolsEmailEvent } from "./mail-devtools-events";
 
 type MailCatcherEmailRow = {
   id: string;
@@ -87,6 +88,12 @@ export function createCaughtEmail(id: string, email: SentEmailData) {
     timestamp,
   );
 
+  emitMailDevtoolsEmailEvent({
+    action: "created",
+    id,
+    timestamp,
+  });
+
   return timestamp;
 }
 
@@ -158,11 +165,26 @@ export function searchCaughtEmails(rawSearch: string): MailCatcherEmail[] {
 export function deleteCaughtEmailById(id: string) {
   const db = getDatabase();
   const result = db.prepare(`DELETE FROM caught_emails WHERE id = ?`).run(id);
+
+  if (result.changes > 0) {
+    emitMailDevtoolsEmailEvent({
+      action: "deleted",
+      id,
+    });
+  }
+
   return result.changes > 0;
 }
 
 export function clearCaughtEmails() {
   const db = getDatabase();
   const result = db.prepare(`DELETE FROM caught_emails`).run();
+
+  if (result.changes > 0) {
+    emitMailDevtoolsEmailEvent({
+      action: "cleared",
+    });
+  }
+
   return result.changes;
 }

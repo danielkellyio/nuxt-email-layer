@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { useMailDevtoolsLiveUpdates } from "./composables/useMailDevtoolsLiveUpdates";
 
 interface Email {
   id: string;
@@ -16,27 +17,59 @@ const loading = ref(false);
 const refreshing = ref(false);
 const sendingTest = ref(false);
 const searchQuery = ref("");
+const liveUpdates = useMailDevtoolsLiveUpdates({
+  onInvalidate: async () => {
+    await fetchEmails();
+  },
+});
+
+const liveStatusLabel = computed(() => {
+  return {
+    live: "Live",
+    reconnecting: "Reconnecting",
+    offline: "Offline",
+  }[liveUpdates.status.value];
+});
+
+const liveStatusTone = computed(() => {
+  return {
+    live: "green",
+    reconnecting: "yellow",
+    offline: "red",
+  }[liveUpdates.status.value];
+});
+
+let latestFetchRequestId = 0;
+let activeFetchCount = 0;
 
 async function fetchEmails(search = searchQuery.value.trim()) {
+  const requestId = ++latestFetchRequestId;
+  activeFetchCount += 1;
+  loading.value = true;
+
   try {
-    loading.value = true;
     const response = (await $fetch("/api/__devtools/emails", {
       query: search ? { search } : undefined,
     })) as {
       emails: Email[];
     };
+
+    if (requestId !== latestFetchRequestId) {
+      return;
+    }
+
     emails.value = response.emails || [];
   } catch (error) {
     console.error("Failed to fetch emails:", error);
   } finally {
-    loading.value = false;
+    activeFetchCount = Math.max(0, activeFetchCount - 1);
+    loading.value = activeFetchCount > 0;
   }
 }
 
 async function deleteEmail(id: string) {
   try {
     await $fetch(`/api/__devtools/emails/${id}`, { method: "DELETE" });
-    await fetchEmails();
     if (selectedEmail.value?.id === id) {
       selectedEmail.value = null;
     }
@@ -48,7 +81,6 @@ async function deleteEmail(id: string) {
 async function clearAllEmails() {
   try {
     await $fetch("/api/__devtools/emails/clear", { method: "DELETE" });
-    await fetchEmails();
     selectedEmail.value = null;
   } catch (error) {
     console.error("Failed to clear emails:", error);
@@ -65,10 +97,6 @@ async function sendTestEmail() {
   try {
     sendingTest.value = true;
     await $fetch("/api/__devtools/emails/send");
-    // Wait a moment then refresh to show the new email
-    setTimeout(async () => {
-      await fetchEmails();
-    }, 1000);
   } catch (error) {
     console.error("Failed to send test email:", error);
   } finally {
@@ -85,7 +113,16 @@ function formatDate(dateString: string) {
 }
 
 onMounted(() => {
-  fetchEmails();
+  void fetchEmails();
+  liveUpdates.connect();
+});
+
+onBeforeUnmount(() => {
+  liveUpdates.disconnect();
+
+  if (searchDebounceTimeout) {
+    clearTimeout(searchDebounceTimeout);
+  }
 });
 
 watch(emails, (nextEmails) => {
@@ -119,6 +156,9 @@ watch(searchQuery, (nextSearch) => {
         <h1 class="text-xl font-semibold text-[#161616] dark:text-gray-200">
           Mail Devtools
         </h1>
+        <NBadge :n="liveStatusTone">
+          {{ liveStatusLabel }}
+        </NBadge>
         <NBadge v-if="emails.length > 0" n="green">
           {{ emails.length }} {{ emails.length === 1 ? "email" : "emails" }}
         </NBadge>
@@ -226,7 +266,10 @@ watch(searchQuery, (nextSearch) => {
           </p>
         </div>
 
-        <div v-else-if="emails.length === 0" class="p-8 text-center text-gray-500 dark:text-gray-400">
+        <div
+          v-else-if="emails.length === 0"
+          class="p-8 text-center text-gray-500 dark:text-gray-400"
+        >
           No emails match your search.
         </div>
 
