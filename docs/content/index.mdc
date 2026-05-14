@@ -3,6 +3,8 @@ title: Home
 navigation: false
 ---
 
+<EmailParticlesBackground />
+
 ::hero
 ---
 announcement:
@@ -24,4 +26,28 @@ Nuxt Email Layer
 #description
 A complete email solution for Nuxt applications with Vue templates, multiple providers, devtools integration, and extensible hooks system.
 ::
+
+<div class="container mx-auto px-4 relative z-10">
+
+## Why Choose Nuxt Email Layer?
+
+<FeatureCards />
+
+## Get Started in Minutes
+
+Install the layer and start sending beautiful emails with Vue templates right away. No complex configuration needed.
+
+```bash
+pnpm add nuxt-email-layer
+```
+
+Then add it to your `nuxt.config.ts`:
+
+```ts
+export default defineNuxtConfig({
+  extends: ['nuxt-email-layer']
+})
+```
+
+</div>
 
