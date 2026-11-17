@@ -118,9 +118,9 @@ Visit the docs at http://localhost:3000 when running `pnpm docs:dev`.
 
 ## Requirements
 
-- Node.js 18+
+- Node.js 22.19+ or 24.11+
 - pnpm 8+
-- Nuxt 4+
+- Nuxt 4.5+
 
 ## Layer Development Tips
 

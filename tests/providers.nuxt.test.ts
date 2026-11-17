@@ -4,13 +4,15 @@ const { createSpy } = vi.hoisted(() => ({
 }));
 
 vi.mock("mailgun.js", () => {
-  const MailgunMock = vi.fn().mockImplementation(() => ({
-    client: vi.fn(() => ({
-      messages: {
-        create: createSpy,
-      },
-    })),
-  }));
+  const MailgunMock = vi.fn(function MailgunMock() {
+    return {
+      client: vi.fn(() => ({
+        messages: {
+          create: createSpy,
+        },
+      })),
+    };
+  });
 
   return {
     default: MailgunMock,

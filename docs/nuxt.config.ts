@@ -1,13 +1,7 @@
-// @ts-nocheck
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
   extends: ["shadcn-docs-nuxt"],
-
-  // Static site generation
-  nitro: {
-    preset: "static",
-  },
 
   i18n: {
     defaultLocale: "en",
@@ -19,5 +13,5 @@ export default defineNuxtConfig({
       },
     ],
   },
-  compatibilityDate: "2024-07-06",
+  compatibilityDate: "2025-07-15",
 });

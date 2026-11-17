@@ -15,7 +15,7 @@
     "nuxt-email-layer": "workspace:*"
   },
   "devDependencies": {
-    "nuxt": "^4.0.3",
+    "nuxt": "~4.5.2",
     "typescript": "^5.9.2",
     "vue": "latest",
     "vue-tsc": "^2.0.0"
